@@ -20,6 +20,33 @@
             min-height: 100vh;
         }
         
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
         .admin-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
             background-size: 400% 400%;
@@ -514,374 +541,447 @@
         .status-indicator.occupied { background: #3b82f6; }
         .status-indicator.cleaning { background: #f59e0b; }
         .status-indicator.maintenance { background: #ef4444; }
+        
+        .login-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .login-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+            transform: scale(1.02);
+        }
+        
+        .login-error {
+            background: #fee2e2;
+            border: 2px solid #f87171;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-weight: 600;
+            text-align: center;
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
     </style>
 </head>
 
 <body class="min-h-screen">
-    <!-- ヘッダー -->
-    <header class="admin-header text-white shadow-2xl relative">
-        <div class="container mx-auto px-6 py-8 relative z-10">
-            <div class="flex flex-col lg:flex-row justify-between items-center">
-                <div class="text-center lg:text-left mb-6 lg:mb-0">
-                    <h1 class="text-4xl font-black mb-3 drop-shadow-lg">
-                        👑 寮管理システム - 管理者画面
-                    </h1>
-                    <p class="text-xl text-white/90 drop-shadow">全地域統合管理 | 川満さん専用ダッシュボード</p>
-                </div>
-                
-                <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="showSection('overview')" class="nav-button">
-                        <i class="fas fa-chart-pie mr-2"></i>概要
-                    </button>
-                    <button onclick="showSection('spreadsheet')" class="nav-button">
-                        <i class="fas fa-table mr-2"></i>スプレッドシート
-                    </button>
-                    <button onclick="showSection('analytics')" class="nav-button">
-                        <i class="fas fa-chart-bar mr-2"></i>分析
-                    </button>
-                    <button onclick="showSection('logs')" class="nav-button">
-                        <i class="fas fa-history mr-2"></i>ログ
-                    </button>
-                    <a href="index.html" class="btn-primary inline-flex items-center">
-                        <i class="fas fa-arrow-left mr-2"></i>スタッフ画面
-                    </a>
-                </div>
-            </div>
+    <!-- ログイン画面 -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <div class="text-6xl mb-6">🔐</div>
+            <h1 class="text-3xl font-black text-gray-800 mb-4">管理者認証</h1>
+            <p class="text-gray-600 mb-8">パスワードを入力してください</p>
             
-            <!-- 地域タブ -->
-            <div class="flex flex-wrap gap-3 mt-8" id="regionTabs">
-                <div class="region-tab active" onclick="selectRegion('all')">
-                    <i class="fas fa-globe mr-2"></i>全地域
-                </div>
-                <div class="region-tab" onclick="selectRegion('tokyo')">
-                    🗼 東京
-                </div>
-                <div class="region-tab" onclick="selectRegion('yokohama')">
-                    ⚓ 横浜
-                </div>
-                <div class="region-tab" onclick="selectRegion('nagoya')">
-                    🏭 名古屋
-                </div>
-                <div class="region-tab" onclick="selectRegion('yokkaichi')">
-                    🏭 四日市
-                </div>
-                <div class="region-tab" onclick="selectRegion('fukuoka')">
-                    🌸 福岡
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- メインコンテンツ -->
-    <div class="container mx-auto px-6 py-8">
-        <!-- 概要セクション -->
-        <div id="overview" class="section">
-            <!-- 全体統計 -->
-            <div class="stats-grid">
-                <div class="metric-card total">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">総室数</p>
-                            <p class="text-4xl font-black text-gray-900 mt-2" id="totalRooms">0</p>
-                            <p class="text-sm text-gray-500 mt-1">全地域合計</p>
-                        </div>
-                        <div class="text-purple-600 text-5xl">
-                            🏢
-                        </div>
-                    </div>
+            <form id="loginForm">
+                <input type="password" id="passwordInput" class="login-input" 
+                       placeholder="••••" maxlength="4" autocomplete="off">
+                
+                <div id="loginError" class="login-error hidden">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    パスワードが正しくありません
                 </div>
                 
-                <div class="metric-card occupancy">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">稼働率</p>
-                            <p class="text-4xl font-black text-blue-600 mt-2" id="occupancyRate">0%</p>
-                            <p class="text-sm text-gray-500 mt-1">入室中の割合</p>
-                        </div>
-                        <div class="text-blue-600 text-5xl">
-                            📈
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="metric-card revenue">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">月次売上予想</p>
-                            <p class="text-4xl font-black text-green-600 mt-2" id="monthlyRevenue">¥0</p>
-                            <p class="text-sm text-gray-500 mt-1">入室中から計算</p>
-                        </div>
-                        <div class="text-green-600 text-5xl">
-                            💰
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="metric-card attention">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">要対応</p>
-                            <p class="text-4xl font-black text-red-600 mt-2" id="attentionNeeded">0</p>
-                            <p class="text-sm text-gray-500 mt-1">清掃・メンテナンス</p>
-                        </div>
-                        <div class="text-red-600 text-5xl">
-                            ⚠️
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 地域別概要 -->
-            <div class="glass-card p-8 mb-8">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">
-                    <i class="fas fa-map-marked-alt mr-3 text-purple-600"></i>地域別パフォーマンス
-                </h3>
-                <div class="overview-grid" id="regionOverviews">
-                    <!-- 動的に生成 -->
-                </div>
-            </div>
-
-            <!-- 今日のアクティビティ -->
-            <div class="glass-card p-8">
-                <h3 class="text-2xl font-bold text-gray-800 mb-6">
-                    <i class="fas fa-clock mr-3 text-blue-600"></i>今日のアクティビティ
-                </h3>
-                <div id="todayActivities" class="space-y-3">
-                    <!-- 動的に生成 -->
-                </div>
-            </div>
-        </div>
-
-        <!-- スプレッドシートセクション -->
-        <div id="spreadsheet" class="section hidden">
-            <div class="spreadsheet-container">
-                <!-- ツールバー -->
-                <div class="spreadsheet-toolbar">
-                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                        <div class="flex items-center gap-4">
-                            <h3 class="text-xl font-bold text-gray-800">
-                                <i class="fas fa-table mr-2 text-purple-600"></i>データ管理スプレッドシート
-                            </h3>
-                            <select id="regionFilter" onchange="filterSpreadsheet()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
-                                <option value="all">全地域</option>
-                                <option value="tokyo">🗼 東京</option>
-                                <option value="yokohama">⚓ 横浜</option>
-                                <option value="nagoya">🏭 名古屋</option>
-                                <option value="yokkaichi">🏭 四日市</option>
-                                <option value="fukuoka">🌸 福岡</option>
-                            </select>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-3">
-                            <button onclick="validateAllData()" class="btn-secondary inline-flex items-center">
-                                <i class="fas fa-check-circle mr-2"></i>データ検証
-                            </button>
-                            <button onclick="bulkEditMode()" class="btn-secondary inline-flex items-center">
-                                <i class="fas fa-edit mr-2"></i>一括編集
-                            </button>
-                            <button onclick="exportToExcel('current')" class="btn-primary inline-flex items-center">
-                                <i class="fas fa-file-excel mr-2"></i>Excel出力
-                            </button>
-                            <button onclick="saveAllChanges()" class="btn-primary inline-flex items-center">
-                                <i class="fas fa-save mr-2"></i>保存
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- スプレッドシート -->
-                <div class="table-container">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="spreadsheet-header">
-                                <th class="sticky-column spreadsheet-cell">地域</th>
-                                <th class="sticky-column spreadsheet-cell">寮番号</th>
-                                <th class="spreadsheet-cell">ステータス</th>
-                                <th class="spreadsheet-cell">最終更新</th>
-                                <th class="spreadsheet-cell">担当者</th>
-                                <th class="spreadsheet-cell">備考</th>
-                                <th class="spreadsheet-cell">入室日</th>
-                                <th class="spreadsheet-cell">予定退室日</th>
-                                <th class="spreadsheet-cell">月額料金</th>
-                                <th class="spreadsheet-cell">支払状況</th>
-                                <th class="spreadsheet-cell">清掃状況</th>
-                                <th class="spreadsheet-cell">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="spreadsheetBody">
-                            <!-- 動的に生成 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 分析セクション -->
-        <div id="analytics" class="section hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- 地域別稼働率 -->
-                <div class="glass-card p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">
-                        <i class="fas fa-chart-pie mr-2 text-purple-600"></i>地域別稼働率
-                    </h3>
-                    <div class="chart-container">
-                        <canvas id="occupancyChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- 月次推移 -->
-                <div class="glass-card p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">
-                        <i class="fas fa-chart-line mr-2 text-blue-600"></i>稼働率推移
-                    </h3>
-                    <div class="chart-container">
-                        <canvas id="trendChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- ステータス分布 -->
-                <div class="glass-card p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">
-                        <i class="fas fa-chart-bar mr-2 text-green-600"></i>ステータス分布
-                    </h3>
-                    <div class="chart-container">
-                        <canvas id="statusChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- 売上分析 -->
-                <div class="glass-card p-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">
-                        <i class="fas fa-money-bill-wave mr-2 text-yellow-600"></i>地域別売上分析
-                    </h3>
-                    <div class="chart-container">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ログセクション -->
-        <div id="logs" class="section hidden">
-            <div class="glass-card">
-                <!-- ログツールバー -->
-                <div class="spreadsheet-toolbar">
-                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                        <h3 class="text-xl font-bold text-gray-800">
-                            <i class="fas fa-history mr-2 text-green-600"></i>活動ログ履歴
-                        </h3>
-                        <div class="flex items-center gap-3">
-                            <select id="logRegionFilter" onchange="filterLogs()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium">
-                                <option value="all">全地域</option>
-                                <option value="tokyo">🗼 東京</option>
-                                <option value="yokohama">⚓ 横浜</option>
-                                <option value="nagoya">🏭 名古屋</option>
-                                <option value="yokkaichi">🏭 四日市</option>
-                                <option value="fukuoka">🌸 福岡</option>
-                            </select>
-                            <select id="logPeriodFilter" onchange="filterLogs()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium">
-                                <option value="all">全期間</option>
-                                <option value="today">今日</option>
-                                <option value="week">今週</option>
-                                <option value="month">今月</option>
-                            </select>
-                            <button onclick="exportToExcel('logs')" class="btn-primary inline-flex items-center">
-                                <i class="fas fa-file-excel mr-2"></i>ログ出力
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ログテーブル -->
-                <div class="table-container">
-                    <table class="w-full text-sm">
-                        <thead class="spreadsheet-header">
-                            <tr>
-                                <th class="spreadsheet-cell">日時</th>
-                                <th class="spreadsheet-cell">地域</th>
-                                <th class="spreadsheet-cell">寮番号</th>
-                                <th class="spreadsheet-cell">操作</th>
-                                <th class="spreadsheet-cell">担当者</th>
-                                <th class="spreadsheet-cell">備考</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logsTableBody">
-                            <!-- 動的に生成 -->
-                        </tbody>
-                    </table>
-                </div>
+                <button type="submit" class="btn-primary w-full mt-6 text-lg py-4">
+                    <i class="fas fa-sign-in-alt mr-2"></i>ログイン
+                </button>
+            </form>
+            
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <a href="index.html" class="text-purple-600 hover:text-purple-800 font-semibold">
+                    <i class="fas fa-arrow-left mr-2"></i>スタッフ画面に戻る
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- 一括編集モーダル -->
-    <div id="bulkEditModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3 class="text-2xl font-bold mb-6 text-gray-800">
-                <i class="fas fa-edit mr-3 text-purple-600"></i>一括編集
-            </h3>
-            
-            <div class="space-y-6">
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-3">対象地域</label>
-                    <select id="bulkRegion" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
-                        <option value="">地域を選択</option>
-                        <option value="tokyo">🗼 東京</option>
-                        <option value="yokohama">⚓ 横浜</option>
-                        <option value="nagoya">🏭 名古屋</option>
-                        <option value="yokkaichi">🏭 四日市</option>
-                        <option value="fukuoka">🌸 福岡</option>
-                    </select>
+    <!-- メイン管理画面 -->
+    <div id="mainAdminContent" class="hidden">
+        <!-- ヘッダー -->
+        <header class="admin-header text-white shadow-2xl relative">
+            <div class="container mx-auto px-6 py-8 relative z-10">
+                <div class="flex flex-col lg:flex-row justify-between items-center">
+                    <div class="text-center lg:text-left mb-6 lg:mb-0">
+                        <h1 class="text-4xl font-black mb-3 drop-shadow-lg">
+                            👑 寮管理システム - 管理者画面
+                        </h1>
+                        <p class="text-xl text-white/90 drop-shadow">全地域統合管理 | 川満さん専用ダッシュボード</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="showSection('overview')" class="nav-button">
+                            <i class="fas fa-chart-pie mr-2"></i>概要
+                        </button>
+                        <button onclick="showSection('spreadsheet')" class="nav-button">
+                            <i class="fas fa-table mr-2"></i>スプレッドシート
+                        </button>
+                        <button onclick="showSection('analytics')" class="nav-button">
+                            <i class="fas fa-chart-bar mr-2"></i>分析
+                        </button>
+                        <button onclick="showSection('logs')" class="nav-button">
+                            <i class="fas fa-history mr-2"></i>ログ
+                        </button>
+                        <button onclick="logout()" class="btn-secondary">
+                            <i class="fas fa-sign-out-alt mr-2"></i>ログアウト
+                        </button>
+                        <a href="index.html" class="btn-primary inline-flex items-center">
+                            <i class="fas fa-arrow-left mr-2"></i>スタッフ画面
+                        </a>
+                    </div>
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-3">対象寮</label>
-                    <div class="grid grid-cols-4 gap-3 max-h-40 overflow-y-auto border-2 border-gray-200 rounded-lg p-4" id="bulkSelectDorms">
+                <!-- 地域タブ -->
+                <div class="flex flex-wrap gap-3 mt-8" id="regionTabs">
+                    <div class="region-tab active" onclick="selectRegion('all')">
+                        <i class="fas fa-globe mr-2"></i>全地域
+                    </div>
+                    <div class="region-tab" onclick="selectRegion('tokyo')">
+                        🗼 東京
+                    </div>
+                    <div class="region-tab" onclick="selectRegion('yokohama')">
+                        ⚓ 横浜
+                    </div>
+                    <div class="region-tab" onclick="selectRegion('nagoya')">
+                        🏭 名古屋
+                    </div>
+                    <div class="region-tab" onclick="selectRegion('yokkaichi')">
+                        🏭 四日市
+                    </div>
+                    <div class="region-tab" onclick="selectRegion('fukuoka')">
+                        🌸 福岡
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <div class="container mx-auto px-6 py-8">
+            <!-- 概要セクション -->
+            <div id="overview" class="section">
+                <!-- 全体統計 -->
+                <div class="stats-grid">
+                    <div class="metric-card total">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">総室数</p>
+                                <p class="text-4xl font-black text-gray-900 mt-2" id="totalRooms">0</p>
+                                <p class="text-sm text-gray-500 mt-1">全地域合計</p>
+                            </div>
+                            <div class="text-purple-600 text-5xl">
+                                🏢
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card occupancy">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">稼働率</p>
+                                <p class="text-4xl font-black text-blue-600 mt-2" id="occupancyRate">0%</p>
+                                <p class="text-sm text-gray-500 mt-1">入室中の割合</p>
+                            </div>
+                            <div class="text-blue-600 text-5xl">
+                                📈
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card revenue">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">月次売上予想</p>
+                                <p class="text-4xl font-black text-green-600 mt-2" id="monthlyRevenue">¥0</p>
+                                <p class="text-sm text-gray-500 mt-1">入室中から計算</p>
+                            </div>
+                            <div class="text-green-600 text-5xl">
+                                💰
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card attention">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">要対応</p>
+                                <p class="text-4xl font-black text-red-600 mt-2" id="attentionNeeded">0</p>
+                                <p class="text-sm text-gray-500 mt-1">清掃・メンテナンス</p>
+                            </div>
+                            <div class="text-red-600 text-5xl">
+                                ⚠️
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 地域別概要 -->
+                <div class="glass-card p-8 mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-map-marked-alt mr-3 text-purple-600"></i>地域別パフォーマンス
+                    </h3>
+                    <div class="overview-grid" id="regionOverviews">
                         <!-- 動的に生成 -->
                     </div>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-3">変更するステータス</label>
-                    <select id="bulkStatus" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
-                        <option value="">選択してください</option>
-                        <option value="vacant">🚪 空室</option>
-                        <option value="occupied">🏠 入室中</option>
-                        <option value="cleaning">🧹 清掃中</option>
-                        <option value="maintenance">🔧 メンテナンス</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-3">担当者</label>
-                    <input type="text" id="bulkStaff" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" placeholder="担当者名">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-3">備考</label>
-                    <textarea id="bulkNotes" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" rows="3" placeholder="一括変更の理由や備考"></textarea>
+
+                <!-- 今日のアクティビティ -->
+                <div class="glass-card p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-clock mr-3 text-blue-600"></i>今日のアクティビティ
+                    </h3>
+                    <div id="todayActivities" class="space-y-3">
+                        <!-- 動的に生成 -->
+                    </div>
                 </div>
             </div>
-            
-            <div class="flex justify-end gap-4 mt-8">
-                <button onclick="closeBulkEditModal()" class="btn-secondary">
-                    キャンセル
-                </button>
-                <button onclick="executeBulkEdit()" class="btn-primary">
-                    一括変更実行
-                </button>
+
+            <!-- スプレッドシートセクション -->
+            <div id="spreadsheet" class="section hidden">
+                <div class="spreadsheet-container">
+                    <!-- ツールバー -->
+                    <div class="spreadsheet-toolbar">
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                            <div class="flex items-center gap-4">
+                                <h3 class="text-xl font-bold text-gray-800">
+                                    <i class="fas fa-table mr-2 text-purple-600"></i>データ管理スプレッドシート
+                                </h3>
+                                <select id="regionFilter" onchange="filterSpreadsheet()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                                    <option value="all">全地域</option>
+                                    <option value="tokyo">🗼 東京</option>
+                                    <option value="yokohama">⚓ 横浜</option>
+                                    <option value="nagoya">🏭 名古屋</option>
+                                    <option value="yokkaichi">🏭 四日市</option>
+                                    <option value="fukuoka">🌸 福岡</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="validateAllData()" class="btn-secondary inline-flex items-center">
+                                    <i class="fas fa-check-circle mr-2"></i>データ検証
+                                </button>
+                                <button onclick="bulkEditMode()" class="btn-secondary inline-flex items-center">
+                                    <i class="fas fa-edit mr-2"></i>一括編集
+                                </button>
+                                <button onclick="exportToExcel('current')" class="btn-primary inline-flex items-center">
+                                    <i class="fas fa-file-excel mr-2"></i>Excel出力
+                                </button>
+                                <button onclick="saveAllChanges()" class="btn-primary inline-flex items-center">
+                                    <i class="fas fa-save mr-2"></i>保存
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- スプレッドシート -->
+                    <div class="table-container">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="spreadsheet-header">
+                                    <th class="sticky-column spreadsheet-cell">地域</th>
+                                    <th class="sticky-column spreadsheet-cell">店舗</th>
+                                    <th class="sticky-column spreadsheet-cell">寮番号</th>
+                                    <th class="spreadsheet-cell">ステータス</th>
+                                    <th class="spreadsheet-cell">最終更新</th>
+                                    <th class="spreadsheet-cell">担当者</th>
+                                    <th class="spreadsheet-cell">備考</th>
+                                    <th class="spreadsheet-cell">入室日</th>
+                                    <th class="spreadsheet-cell">予定退室日</th>
+                                    <th class="spreadsheet-cell">月額料金</th>
+                                    <th class="spreadsheet-cell">支払状況</th>
+                                    <th class="spreadsheet-cell">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spreadsheetBody">
+                                <!-- 動的に生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分析セクション -->
+            <div id="analytics" class="section hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 地域別稼働率 -->
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-chart-pie mr-2 text-purple-600"></i>地域別稼働率
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="occupancyChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 月次推移 -->
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-chart-line mr-2 text-blue-600"></i>稼働率推移
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- ステータス分布 -->
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-chart-bar mr-2 text-green-600"></i>ステータス分布
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 売上分析 -->
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-money-bill-wave mr-2 text-yellow-600"></i>地域別売上分析
+                        </h3>
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ログセクション -->
+            <div id="logs" class="section hidden">
+                <div class="glass-card">
+                    <!-- ログツールバー -->
+                    <div class="spreadsheet-toolbar">
+                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                            <h3 class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-history mr-2 text-green-600"></i>活動ログ履歴
+                            </h3>
+                            <div class="flex items-center gap-3">
+                                <select id="logRegionFilter" onchange="filterLogs()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium">
+                                    <option value="all">全地域</option>
+                                    <option value="tokyo">🗼 東京</option>
+                                    <option value="yokohama">⚓ 横浜</option>
+                                    <option value="nagoya">🏭 名古屋</option>
+                                    <option value="yokkaichi">🏭 四日市</option>
+                                    <option value="fukuoka">🌸 福岡</option>
+                                </select>
+                                <select id="logPeriodFilter" onchange="filterLogs()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium">
+                                    <option value="all">全期間</option>
+                                    <option value="today">今日</option>
+                                    <option value="week">今週</option>
+                                    <option value="month">今月</option>
+                                </select>
+                                <button onclick="exportToExcel('logs')" class="btn-primary inline-flex items-center">
+                                    <i class="fas fa-file-excel mr-2"></i>ログ出力
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ログテーブル -->
+                    <div class="table-container">
+                        <table class="w-full text-sm">
+                            <thead class="spreadsheet-header">
+                                <tr>
+                                    <th class="spreadsheet-cell">日時</th>
+                                    <th class="spreadsheet-cell">地域</th>
+                                    <th class="spreadsheet-cell">店舗</th>
+                                    <th class="spreadsheet-cell">寮番号</th>
+                                    <th class="spreadsheet-cell">操作</th>
+                                    <th class="spreadsheet-cell">担当者</th>
+                                    <th class="spreadsheet-cell">備考</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <!-- 動的に生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- フローティングアクション -->
-    <div class="floating-actions">
-        <button class="floating-btn" onclick="quickExport()" title="クイック出力">
-            <i class="fas fa-download"></i>
-        </button>
-        <button class="floating-btn" onclick="showSection('overview')" title="概要に戻る">
-            <i class="fas fa-home"></i>
-        </button>
+        <!-- 一括編集モーダル -->
+        <div id="bulkEditModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800">
+                    <i class="fas fa-edit mr-3 text-purple-600"></i>一括編集
+                </h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-3">対象地域</label>
+                        <select id="bulkRegion" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                            <option value="">地域を選択</option>
+                            <option value="tokyo">🗼 東京</option>
+                            <option value="yokohama">⚓ 横浜</option>
+                            <option value="nagoya">🏭 名古屋</option>
+                            <option value="yokkaichi">🏭 四日市</option>
+                            <option value="fukuoka">🌸 福岡</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-3">対象寮</label>
+                        <div class="grid grid-cols-4 gap-3 max-h-40 overflow-y-auto border-2 border-gray-200 rounded-lg p-4" id="bulkSelectDorms">
+                            <!-- 動的に生成 -->
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-3">変更するステータス</label>
+                        <select id="bulkStatus" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
+                            <option value="">選択してください</option>
+                            <option value="vacant">🚪 空室</option>
+                            <option value="occupied">🏠 入室中</option>
+                            <option value="cleaning">🧹 清掃中</option>
+                            <option value="maintenance">🔧 メンテナンス</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-3">担当者</label>
+                        <input type="text" id="bulkStaff" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" placeholder="担当者名">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-3">備考</label>
+                        <textarea id="bulkNotes" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" rows="3" placeholder="一括変更の理由や備考"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-4 mt-8">
+                    <button onclick="closeBulkEditModal()" class="btn-secondary">
+                        キャンセル
+                    </button>
+                    <button onclick="executeBulkEdit()" class="btn-primary">
+                        一括変更実行
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- フローティングアクション -->
+        <div class="floating-actions">
+            <button class="floating-btn" onclick="quickExport()" title="クイック出力">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="floating-btn" onclick="showSection('overview')" title="概要に戻る">
+                <i class="fas fa-home"></i>
+            </button>
+        </div>
     </div>
 
     <!-- ローディングオーバーレイ -->
@@ -898,18 +998,56 @@
         let allDormitories = {};
         let allLogs = [];
         let charts = {};
+        let isAuthenticated = false;
 
-        // 地域データ（5地域に修正）
+        // 地域データ
         const regions = {
-            tokyo: { name: '東京エリア', icon: '🗼', rooms: 20, price: 68000, color: '#3b82f6' },
-            yokohama: { name: '横浜エリア', icon: '⚓', rooms: 18, price: 62000, color: '#06b6d4' },
-            nagoya: { name: '名古屋エリア', icon: '🏭', rooms: 16, price: 55000, color: '#10b981' },
-            yokkaichi: { name: '四日市エリア', icon: '🏭', rooms: 14, price: 48000, color: '#8b5cf6' },
-            fukuoka: { name: '福岡エリア', icon: '🌸', rooms: 15, price: 52000, color: '#f59e0b' }
+            tokyo: { name: '東京エリア', icon: '🗼', price: 68000, color: '#3b82f6' },
+            yokohama: { name: '横浜エリア', icon: '⚓', price: 62000, color: '#06b6d4' },
+            nagoya: { name: '名古屋エリア', icon: '🏭', price: 55000, color: '#10b981' },
+            yokkaichi: { name: '四日市エリア', icon: '🏭', price: 48000, color: '#8b5cf6' },
+            fukuoka: { name: '福岡エリア', icon: '🌸', price: 52000, color: '#f59e0b' }
         };
+
+        // ログイン処理
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            
+            if (password === '1104') {
+                isAuthenticated = true;
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainAdminContent').classList.remove('hidden');
+                loadAllData();
+                updateOverview();
+                showSection('overview');
+                showNotification('ログインしました', 'success');
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        });
+
+        // ログアウト処理
+        function logout() {
+            isAuthenticated = false;
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('mainAdminContent').classList.add('hidden');
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+            showNotification('ログアウトしました', 'info');
+        }
+
+        // パスワード入力時のエラー非表示
+        document.getElementById('passwordInput').addEventListener('input', function() {
+            document.getElementById('loginError').classList.add('hidden');
+        });
 
         // データ読み込み
         function loadAllData() {
+            if (!isAuthenticated) return;
+            
             showLoading();
             allDormitories = {};
             allLogs = [];
@@ -952,12 +1090,14 @@
         }
 
         function initializeRegionData(regionId) {
-            const roomCount = regions[regionId].rooms;
-            
-            for (let i = 1; i <= roomCount; i++) {
+            // 地域データを初期化（実装は元のコードと同じ）
+            for (let i = 1; i <= 20; i++) {
                 const dorm = {
                     number: i,
                     region: regionId,
+                    store: 'テスト店舗',
+                    property: 'テスト物件',
+                    roomNumber: i,
                     status: getRandomStatus(),
                     lastUpdated: new Date().toISOString(),
                     staff: '',
@@ -1003,7 +1143,8 @@
             Object.keys(allDormitories).forEach(key => {
                 const dorm = allDormitories[key];
                 if (dorm.region === regionId) {
-                    regionDorms[dorm.number] = dorm;
+                    const dormKey = key.replace(`${regionId}_`, '');
+                    regionDorms[dormKey] = dorm;
                 }
             });
             
@@ -1028,6 +1169,8 @@
 
         // セクション切り替え
         function showSection(sectionId) {
+            if (!isAuthenticated) return;
+            
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
             });
@@ -1065,6 +1208,8 @@
 
         // 概要更新
         function updateOverview() {
+            if (!isAuthenticated) return;
+            
             const filteredDorms = getFilteredDormitories();
             const stats = calculateStatistics(filteredDorms);
             
@@ -1161,7 +1306,7 @@
                         <div class="flex items-center space-x-4">
                             <div class="text-3xl">${regions[log.region].icon}</div>
                             <div>
-                                <div class="font-semibold text-gray-800">寮${log.dormNumber} (${regions[log.region].name})</div>
+                                <div class="font-semibold text-gray-800">${log.store || '不明'} - 寮${log.roomNumber || log.dormNumber} (${regions[log.region].name})</div>
                                 <div class="text-sm text-gray-600">${getActionText(log.action)} by ${log.staff}</div>
                                 ${log.notes ? `<div class="text-xs text-gray-500 mt-1">${log.notes}</div>` : ''}
                             </div>
@@ -1176,6 +1321,8 @@
 
         // スプレッドシート描画
         function renderSpreadsheet() {
+            if (!isAuthenticated) return;
+            
             const tbody = document.getElementById('spreadsheetBody');
             tbody.innerHTML = '';
             
@@ -1191,9 +1338,10 @@
                             <span>${regions[dorm.region].name}</span>
                         </div>
                     </td>
-                    <td class="sticky-column spreadsheet-cell font-bold text-purple-700">寮${dorm.number}</td>
+                    <td class="sticky-column spreadsheet-cell font-medium text-purple-700">${dorm.store || '未設定'}</td>
+                    <td class="sticky-column spreadsheet-cell font-bold text-purple-700">${dorm.property || '未設定'} ${dorm.roomNumber}</td>
                     <td class="spreadsheet-cell">
-                        <select onchange="updateDormField('${dorm.region}_${dorm.number}', 'status', this.value)">
+                        <select onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'status', this.value)">
                             <option value="vacant" ${dorm.status === 'vacant' ? 'selected' : ''}>🚪 空室</option>
                             <option value="occupied" ${dorm.status === 'occupied' ? 'selected' : ''}>🏠 入室中</option>
                             <option value="cleaning" ${dorm.status === 'cleaning' ? 'selected' : ''}>🧹 清掃中</option>
@@ -1205,43 +1353,36 @@
                     </td>
                     <td class="spreadsheet-cell">
                         <input type="text" value="${dorm.staff || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number}', 'staff', this.value)"
+                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'staff', this.value)"
                                placeholder="担当者名">
                     </td>
                     <td class="spreadsheet-cell">
                         <input type="text" value="${dorm.notes || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number}', 'notes', this.value)"
+                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'notes', this.value)"
                                placeholder="備考">
                     </td>
                     <td class="spreadsheet-cell">
                         <input type="date" value="${dorm.checkinDate || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number}', 'checkinDate', this.value)">
+                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'checkinDate', this.value)">
                     </td>
                     <td class="spreadsheet-cell">
                         <input type="date" value="${dorm.expectedCheckout || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number}', 'expectedCheckout', this.value)">
+                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'expectedCheckout', this.value)">
                     </td>
                     <td class="spreadsheet-cell">
                         <input type="number" value="${dorm.price || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number}', 'price', this.value)"
+                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'price', this.value)"
                                class="text-right font-semibold">
                     </td>
                     <td class="spreadsheet-cell">
-                        <select onchange="updateDormField('${dorm.region}_${dorm.number}', 'paymentStatus', this.value)">
+                        <select onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'paymentStatus', this.value)">
                             <option value="paid" ${dorm.paymentStatus === 'paid' ? 'selected' : ''}>✅ 支払済</option>
                             <option value="pending" ${dorm.paymentStatus === 'pending' ? 'selected' : ''}>⏳ 未払い</option>
                             <option value="overdue" ${dorm.paymentStatus === 'overdue' ? 'selected' : ''}>⚠️ 遅延</option>
                         </select>
                     </td>
-                    <td class="spreadsheet-cell">
-                        <select onchange="updateDormField('${dorm.region}_${dorm.number}', 'cleaningStatus', this.value)">
-                            <option value="clean" ${dorm.cleaningStatus === 'clean' ? 'selected' : ''}>✨ 清潔</option>
-                            <option value="dirty" ${dorm.cleaningStatus === 'dirty' ? 'selected' : ''}>🧹 要清掃</option>
-                            <option value="deep" ${dorm.cleaningStatus === 'deep' ? 'selected' : ''}>🔧 大掃除必要</option>
-                        </select>
-                    </td>
                     <td class="spreadsheet-cell text-center">
-                        <button onclick="deleteDormData('${dorm.region}_${dorm.number}')" 
+                        <button onclick="deleteDormData('${dorm.region}_${dorm.number || dorm.roomNumber}')" 
                                 class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-all"
                                 title="削除">
                             <i class="fas fa-trash"></i>
@@ -1254,22 +1395,25 @@
 
         // データ更新
         function updateDormField(dormKey, field, value) {
+            if (!isAuthenticated) return;
+            
             allDormitories[dormKey][field] = value;
             allDormitories[dormKey].lastUpdated = new Date().toISOString();
             
-            const [region, dormNumber] = dormKey.split('_');
+            const [region] = dormKey.split('_');
             
             // ログ記録
             allLogs.unshift({
                 id: allLogs.length + 1,
-                dormNumber: parseInt(dormNumber),
+                roomNumber: allDormitories[dormKey].roomNumber,
                 action: 'update',
                 field: field,
                 newValue: value,
                 staff: '管理者',
                 timestamp: new Date().toISOString(),
                 notes: `${field}を更新`,
-                region: region
+                region: region,
+                store: allDormitories[dormKey].store
             });
             
             saveRegionData(region);
@@ -1278,6 +1422,8 @@
 
         // チャート描画
         function renderCharts() {
+            if (!isAuthenticated) return;
+            
             renderOccupancyChart();
             renderTrendChart();
             renderStatusChart();
@@ -1479,6 +1625,8 @@
 
         // ログ表示
         function renderLogs() {
+            if (!isAuthenticated) return;
+            
             const regionFilter = document.getElementById('logRegionFilter').value;
             const periodFilter = document.getElementById('logPeriodFilter').value;
             
@@ -1517,7 +1665,8 @@
                             <span class="font-medium">${regions[log.region].name}</span>
                         </div>
                     </td>
-                    <td class="spreadsheet-cell font-semibold text-purple-700">寮${log.dormNumber}</td>
+                    <td class="spreadsheet-cell font-medium text-purple-700">${log.store || '未設定'}</td>
+                    <td class="spreadsheet-cell font-semibold text-purple-700">寮${log.roomNumber || log.dormNumber}</td>
                     <td class="spreadsheet-cell">
                         <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
                             ${getActionText(log.action)}
@@ -1531,6 +1680,8 @@
 
         // Excel出力
         function exportToExcel(type) {
+            if (!isAuthenticated) return;
+            
             showLoading();
             
             setTimeout(() => {
@@ -1539,7 +1690,8 @@
                 if (type === 'current') {
                     data = getFilteredDormitories().map(dorm => ({
                         '地域': regions[dorm.region].name,
-                        '寮番号': `寮${dorm.number}`,
+                        '店舗': dorm.store || '未設定',
+                        '寮番号': `${dorm.property || '未設定'} ${dorm.roomNumber}`,
                         'ステータス': getStatusText(dorm.status),
                         '最終更新': new Date(dorm.lastUpdated).toLocaleString('ja-JP'),
                         '担当者': dorm.staff || '',
@@ -1547,15 +1699,15 @@
                         '入室日': dorm.checkinDate || '',
                         '予定退室日': dorm.expectedCheckout || '',
                         '月額料金': dorm.price || '',
-                        '支払状況': getPaymentStatusText(dorm.paymentStatus),
-                        '清掃状況': getCleaningStatusText(dorm.cleaningStatus)
+                        '支払状況': getPaymentStatusText(dorm.paymentStatus)
                     }));
                     filename = `全地域寮ステータス_${new Date().toISOString().split('T')[0]}.xlsx`;
                 } else {
                     data = allLogs.map(log => ({
                         '日時': new Date(log.timestamp).toLocaleString('ja-JP'),
                         '地域': regions[log.region].name,
-                        '寮番号': `寮${log.dormNumber}`,
+                        '店舗': log.store || '未設定',
+                        '寮番号': `寮${log.roomNumber || log.dormNumber}`,
                         '操作': getActionText(log.action),
                         '担当者': log.staff,
                         '備考': log.notes || ''
@@ -1591,7 +1743,10 @@
                 cleaning: '清掃開始',
                 cleaned: '清掃完了',
                 update: 'データ更新',
-                bulk_update: '一括更新'
+                bulk_update: '一括更新',
+                'payment-confirmed': '入金確認',
+                'payment-overdue': '入金遅延',
+                'payment-status-update': '入金ステータス更新'
             };
             return actionMap[action] || action;
         }
@@ -1601,15 +1756,6 @@
                 paid: '支払済',
                 pending: '未払い',
                 overdue: '遅延'
-            };
-            return statusMap[status] || status;
-        }
-
-        function getCleaningStatusText(status) {
-            const statusMap = {
-                clean: '清潔',
-                dirty: '要清掃',
-                deep: '大掃除必要'
             };
             return statusMap[status] || status;
         }
@@ -1647,6 +1793,8 @@
         }
 
         function saveAllChanges() {
+            if (!isAuthenticated) return;
+            
             showLoading();
             setTimeout(() => {
                 Object.keys(regions).forEach(regionId => {
@@ -1673,6 +1821,7 @@
 
         // 一括編集関連
         function bulkEditMode() {
+            if (!isAuthenticated) return;
             document.getElementById('bulkEditModal').classList.remove('hidden');
         }
 
@@ -1698,13 +1847,15 @@
             
             dormsContainer.innerHTML = regionDorms.map(dorm => `
                 <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                    <input type="checkbox" value="${regionId}_${dorm.number}" class="bulk-dorm-checkbox">
-                    <span class="text-sm font-medium">寮${dorm.number}</span>
+                    <input type="checkbox" value="${regionId}_${dorm.number || dorm.roomNumber}" class="bulk-dorm-checkbox">
+                    <span class="text-sm font-medium">寮${dorm.roomNumber}</span>
                 </label>
             `).join('');
         });
 
         function executeBulkEdit() {
+            if (!isAuthenticated) return;
+            
             const selectedDorms = Array.from(document.querySelectorAll('.bulk-dorm-checkbox:checked')).map(cb => cb.value);
             const status = document.getElementById('bulkStatus').value;
             const staff = document.getElementById('bulkStaff').value;
@@ -1725,7 +1876,7 @@
             setTimeout(() => {
                 selectedDorms.forEach(dormKey => {
                     const dorm = allDormitories[dormKey];
-                    const [region, dormNumber] = dormKey.split('_');
+                    const [region] = dormKey.split('_');
                     
                     if (status) dorm.status = status;
                     if (staff) dorm.staff = staff;
@@ -1734,12 +1885,13 @@
                     
                     allLogs.unshift({
                         id: allLogs.length + 1,
-                        dormNumber: parseInt(dormNumber),
+                        roomNumber: dorm.roomNumber,
                         action: 'bulk_update',
                         staff: '管理者',
                         timestamp: new Date().toISOString(),
                         notes: `一括編集: ${notes}`,
-                        region: region
+                        region: region,
+                        store: dorm.store
                     });
                     
                     saveRegionData(region);
@@ -1754,20 +1906,24 @@
         }
 
         function deleteDormData(dormKey) {
+            if (!isAuthenticated) return;
+            
             if (!confirm('本当にこの寮のデータを削除しますか？')) {
                 return;
             }
             
-            const [region, dormNumber] = dormKey.split('_');
+            const [region] = dormKey.split('_');
+            const dorm = allDormitories[dormKey];
             
             allLogs.unshift({
                 id: allLogs.length + 1,
-                dormNumber: parseInt(dormNumber),
+                roomNumber: dorm.roomNumber,
                 action: 'delete',
                 staff: '管理者',
                 timestamp: new Date().toISOString(),
                 notes: 'データ削除',
-                region: region
+                region: region,
+                store: dorm.store
             });
             
             delete allDormitories[dormKey];
@@ -1778,6 +1934,8 @@
         }
 
         function validateAllData() {
+            if (!isAuthenticated) return;
+            
             showLoading();
             
             setTimeout(() => {
@@ -1785,7 +1943,7 @@
                 const warnings = [];
                 
                 Object.values(allDormitories).forEach(dorm => {
-                    const dormId = `${regions[dorm.region].name} 寮${dorm.number}`;
+                    const dormId = `${regions[dorm.region].name} ${dorm.store} - 寮${dorm.roomNumber}`;
                     
                     if (dorm.status === 'occupied' && !dorm.checkinDate) {
                         errors.push(`${dormId}: 入室中ですが入室日が設定されていません`);
@@ -1799,12 +1957,12 @@
                         errors.push(`${dormId}: 退室予定日が過ぎています`);
                     }
                     
-                    if (dorm.status === 'cleaning' && dorm.cleaningStatus === 'clean') {
-                        warnings.push(`${dormId}: 清掃中ですが清掃状況が「清潔」になっています`);
-                    }
-                    
                     if (!dorm.price || dorm.price <= 0) {
                         errors.push(`${dormId}: 料金が設定されていません`);
+                    }
+                    
+                    if (!dorm.store || dorm.store === '未設定') {
+                        warnings.push(`${dormId}: 店舗が設定されていません`);
                     }
                 });
                 
@@ -1835,12 +1993,63 @@
             }, 1500);
         }
 
+        // 認証チェック機能
+        function requireAuth() {
+            if (!isAuthenticated) {
+                showNotification('この機能を使用するにはログインが必要です', 'error');
+                return false;
+            }
+            return true;
+        }
+
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            loadAllData();
-            updateOverview();
-            showSection('overview');
-            console.log('管理者システムが正常に読み込まれました');
+            // 認証チェック
+            const savedAuth = sessionStorage.getItem('admin_authenticated');
+            if (savedAuth === 'true') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('mainAdminContent').classList.remove('hidden');
+                isAuthenticated = true;
+                loadAllData();
+                updateOverview();
+                showSection('overview');
+            }
+            
+            console.log('セキュア管理者システムが正常に読み込まれました');
+        });
+
+        // セッション管理
+        window.addEventListener('beforeunload', function() {
+            if (isAuthenticated) {
+                sessionStorage.setItem('admin_authenticated', 'true');
+            } else {
+                sessionStorage.removeItem('admin_authenticated');
+            }
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', function(e) {
+            if (!isAuthenticated) return;
+            
+            // Ctrl+S で保存
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveAllChanges();
+            }
+            
+            // Ctrl+E でExcel出力
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                quickExport();
+            }
+            
+            // ESCでモーダルを閉じる
+            if (e.key === 'Escape') {
+                const modal = document.querySelector('.modal-overlay:not(.hidden)');
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+            }
         });
     </script>
 </body>
