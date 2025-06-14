@@ -1,0 +1,32 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Log files
+*.log
+
+# Node modules (将来の拡張用)
+node_modules/
+npm-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.production
