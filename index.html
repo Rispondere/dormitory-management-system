@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寮管理システム - スタッフ画面 v2.0</title>
+    <title>寮管理システム - スタッフ画面 v3.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/index.global.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -122,6 +122,7 @@
         .status-cleaning { --status-color: linear-gradient(135deg, #f59e0b, #d97706); }
         .status-maintenance { --status-color: linear-gradient(135deg, #ef4444, #dc2626); }
         .status-cancelled { --status-color: linear-gradient(135deg, #6b7280, #4b5563); }
+        .status-reserved { --status-color: linear-gradient(135deg, #8b5cf6, #7c3aed); }
         
         .alert-card {
             background: white;
@@ -141,6 +142,8 @@
         .alert-checkin { border-left-color: #3b82f6; }
         .alert-checkout { border-left-color: #10b981; }
         .alert-missing { border-left-color: #f59e0b; }
+        .alert-future { border-left-color: #8b5cf6; }
+        .alert-conflict { border-left-color: #ef4444; }
         
         .status-badge {
             padding: 8px 16px;
@@ -179,6 +182,11 @@
             color: white;
         }
         
+        .status-badge.reserved {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        
         .metric-card {
             background: white;
             border-radius: 16px;
@@ -208,6 +216,7 @@
         .metric-card.occupied::before { background: linear-gradient(135deg, #3b82f6, #2563eb); }
         .metric-card.cleaning::before { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .metric-card.maintenance::before { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .metric-card.future::before { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
         
         .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
@@ -281,19 +290,121 @@
             border-color: #667eea;
         }
         
-        .sort-dropdown {
+        .view-toggle {
             background: white;
             border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 10px 16px;
-            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         
-        .sort-dropdown:focus {
-            outline: none;
+        .view-toggle.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .calendar-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        
+        .timeline-view {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1px;
+            background: #e5e7eb;
+        }
+        
+        .timeline-room {
+            background: white;
+            padding: 16px;
+            font-weight: 600;
+            border-right: 2px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .timeline-dates {
+            display: grid;
+            grid-template-columns: repeat(14, 1fr);
+            gap: 1px;
+        }
+        
+        .timeline-date-header {
+            background: #f3f4f6;
+            padding: 12px 4px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: #374151;
+        }
+        
+        .timeline-cell {
+            background: white;
+            min-height: 60px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .timeline-cell:hover {
+            background: #f8fafc;
+        }
+        
+        .timeline-reservation {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        
+        .reservation-occupied {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        
+        .reservation-future {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+        
+        .reservation-cleaning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .reservation-maintenance {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .conflict-warning {
+            border: 3px solid #ef4444 !important;
+            animation: pulse 2s infinite;
+        }
+        
+        .future-reservation-card {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            font-size: 12px;
         }
         
         .floating-button {
@@ -471,6 +582,14 @@
                 right: 1rem;
                 font-size: 20px;
             }
+            
+            .timeline-view {
+                grid-template-columns: 150px 1fr;
+            }
+            
+            .timeline-dates {
+                grid-template-columns: repeat(7, 1fr);
+            }
         }
         
         .occupancy-indicator {
@@ -503,10 +622,10 @@
         <div class="container mx-auto px-6">
             <div class="text-center mb-12">
                 <h1 class="text-6xl font-black text-white mb-6 drop-shadow-lg">
-                    🏢 寮管理システム v2.0
+                    🏢 寮管理システム v3.0
                 </h1>
                 <p class="text-2xl text-white/90 mb-4 drop-shadow">担当地域を選択してください</p>
-                <p class="text-lg text-white/70 drop-shadow">チェックイン・アウト管理 | アラート機能 | 稼働率表示</p>
+                <p class="text-lg text-white/70 drop-shadow">📅 予約カレンダー対応 | チェックイン・アウト管理 | 将来予約機能</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -610,7 +729,7 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
                         <div class="text-2xl font-black bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                            🏢 寮管理システム v2.0
+                            🏢 寮管理システム v3.0
                         </div>
                         <div id="selectedRegionDisplay" class="hidden bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
                             <!-- 選択中の地域を表示 -->
@@ -620,13 +739,16 @@
                         <button onclick="showPage('dashboard')" class="nav-btn text-gray-600 hover:text-purple-600 px-4 py-2 rounded-lg transition-all font-medium">
                             <i class="fas fa-home mr-2"></i>ダッシュボード
                         </button>
+                        <button onclick="showPage('calendar')" class="nav-btn text-gray-600 hover:text-purple-600 px-4 py-2 rounded-lg transition-all font-medium">
+                            <i class="fas fa-calendar-alt mr-2"></i>予約カレンダー
+                        </button>
                         <button onclick="showPage('alerts')" class="nav-btn text-gray-600 hover:text-purple-600 px-4 py-2 rounded-lg transition-all font-medium">
                             <i class="fas fa-bell mr-2"></i>アラート
                         </button>
                         <button onclick="showPage('register')" class="nav-btn text-gray-600 hover:text-purple-600 px-4 py-2 rounded-lg transition-all font-medium">
                             <i class="fas fa-plus mr-2"></i>操作入力
                         </button>
-                        <a href="admin.html" class="btn-primary inline-flex items-center">
+                        <a href="#" onclick="openAdminPage()" class="btn-primary inline-flex items-center">
                             <i class="fas fa-cog mr-2"></i>管理画面
                         </a>
                     </div>
@@ -637,7 +759,7 @@
         <!-- ダッシュボード -->
         <div id="dashboard" class="page container mx-auto px-6 py-8">
             <!-- 統計カード -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <div class="metric-card vacant">
                     <div class="text-4xl mb-3">🚪</div>
                     <div class="text-3xl font-black text-gray-800 mb-1" id="vacantCount">0</div>
@@ -658,6 +780,11 @@
                     <div class="text-3xl font-black text-gray-800 mb-1" id="maintenanceCount">0</div>
                     <div class="text-sm font-medium text-gray-600">メンテナンス</div>
                 </div>
+                <div class="metric-card future">
+                    <div class="text-4xl mb-3">📅</div>
+                    <div class="text-3xl font-black text-gray-800 mb-1" id="futureReservationsCount">0</div>
+                    <div class="text-sm font-medium text-gray-600">将来予約</div>
+                </div>
             </div>
 
             <!-- 予定管理セクション -->
@@ -672,12 +799,12 @@
                     </div>
                 </div>
 
-                <!-- 長期滞在者一覧 -->
+                <!-- 将来予約一覧 -->
                 <div class="glass-card p-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
-                        <i class="fas fa-hourglass-half mr-2 text-orange-600"></i>長期滞在者（30日以上）
+                        <i class="fas fa-clock mr-2 text-purple-600"></i>将来予約一覧
                     </h3>
-                    <div id="longTermStays" class="space-y-3 max-h-96 overflow-y-auto">
+                    <div id="futureReservationsList" class="space-y-3 max-h-96 overflow-y-auto">
                         <!-- 動的に生成 -->
                     </div>
                 </div>
@@ -703,6 +830,9 @@
                             <button onclick="filterRooms('cleaning')" class="filter-button">
                                 🧹 清掃中
                             </button>
+                            <button onclick="filterRooms('has-future')" class="filter-button">
+                                📅 将来予約あり
+                            </button>
                             <button onclick="filterRooms('checkout-today')" class="filter-button">
                                 📅 本日チェックアウト
                             </button>
@@ -719,7 +849,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">並び順</label>
-                        <select id="sortSelect" class="sort-dropdown" onchange="sortRooms()">
+                        <select id="sortSelect" class="form-input" onchange="sortRooms()">
                             <option value="property">物件順</option>
                             <option value="checkin">チェックイン日順</option>
                             <option value="checkout">チェックアウト日順</option>
@@ -733,6 +863,41 @@
             <!-- 寮一覧 -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="roomsGrid">
                 <!-- 動的に生成 -->
+            </div>
+        </div>
+
+        <!-- 予約カレンダー -->
+        <div id="calendar" class="page container mx-auto px-6 py-8 hidden">
+            <div class="glass-card p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">
+                        <i class="fas fa-calendar-alt mr-3 text-purple-600"></i>予約カレンダー
+                    </h2>
+                    <div class="flex gap-4 items-center">
+                        <div class="flex gap-2">
+                            <button onclick="setCalendarView('timeline')" class="view-toggle active" id="timelineViewBtn">
+                                <i class="fas fa-bars mr-2"></i>タイムライン
+                            </button>
+                            <button onclick="setCalendarView('grid')" class="view-toggle" id="gridViewBtn">
+                                <i class="fas fa-th mr-2"></i>グリッド
+                            </button>
+                            <button onclick="setCalendarView('month')" class="view-toggle" id="monthViewBtn">
+                                <i class="fas fa-calendar mr-2"></i>月表示
+                            </button>
+                        </div>
+                        <button onclick="exportCalendarCSV()" class="btn-secondary">
+                            <i class="fas fa-download mr-2"></i>CSV出力
+                        </button>
+                        <button onclick="openFutureReservationModal()" class="btn-primary">
+                            <i class="fas fa-plus mr-2"></i>将来予約登録
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- カレンダー表示エリア -->
+                <div id="calendarDisplay" class="calendar-container">
+                    <!-- 動的に生成 -->
+                </div>
             </div>
         </div>
 
@@ -758,7 +923,7 @@
                     </h2>
                     
                     <!-- チェックイン・アウト -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 mb-6">
                         <h3 class="text-xl font-bold mb-4 text-blue-600">
                             <i class="fas fa-door-open mr-2"></i>チェックイン・アウト管理
                         </h3>
@@ -810,6 +975,54 @@
                                 </div>
                                 <button type="submit" class="btn-primary w-full">
                                     <i class="fas fa-save mr-2"></i>登録
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 将来予約登録 -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200">
+                        <h3 class="text-xl font-bold mb-4 text-purple-600">
+                            <i class="fas fa-calendar-plus mr-2"></i>将来予約登録
+                        </h3>
+                        <form id="futureReservationForm">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">物件・部屋</label>
+                                    <select id="futureRoomSelect" class="form-input" required>
+                                        <option value="">選択してください</option>
+                                    </select>
+                                </div>
+                                <div class="form-grid">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">宿泊者名 <span class="text-red-500">*</span></label>
+                                        <input type="text" id="futureResidentName" class="form-input" placeholder="宿泊者名" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">予約日（チェックイン予定日） <span class="text-red-500">*</span></label>
+                                        <input type="date" id="futureCheckinDate" class="form-input" required>
+                                    </div>
+                                </div>
+                                <div class="form-grid">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">チェックアウト予定日</label>
+                                        <input type="date" id="futureCheckoutDate" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">宿泊料金</label>
+                                        <input type="number" id="futureStayAmount" class="form-input" placeholder="料金">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">担当者名 <span class="text-red-500">*</span></label>
+                                    <input type="text" id="futureStaffName" class="form-input" placeholder="担当者名" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">備考</label>
+                                    <textarea id="futureNotes" class="form-input" rows="3" placeholder="備考"></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary w-full">
+                                    <i class="fas fa-calendar-plus mr-2"></i>将来予約登録
                                 </button>
                             </div>
                         </form>
@@ -892,6 +1105,66 @@
         </div>
     </div>
 
+    <!-- 将来予約モーダル -->
+    <div id="futureReservationModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">将来予約登録</h3>
+                <button onclick="closeFutureReservationModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="modalFutureReservationForm">
+                <div class="text-left space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">物件・部屋</label>
+                        <select id="modalFutureRoomSelect" class="form-input" required>
+                            <option value="">選択してください</option>
+                        </select>
+                    </div>
+                    <div class="form-grid">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">宿泊者名 <span class="text-red-500">*</span></label>
+                            <input type="text" id="modalFutureResidentName" class="form-input" placeholder="宿泊者名" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">予約日（チェックイン予定日） <span class="text-red-500">*</span></label>
+                            <input type="date" id="modalFutureCheckinDate" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">チェックアウト予定日</label>
+                            <input type="date" id="modalFutureCheckoutDate" class="form-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">宿泊料金</label>
+                            <input type="number" id="modalFutureStayAmount" class="form-input" placeholder="料金">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">担当者名 <span class="text-red-500">*</span></label>
+                        <input type="text" id="modalFutureStaffName" class="form-input" placeholder="担当者名" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">備考</label>
+                        <textarea id="modalFutureNotes" class="form-input" rows="3" placeholder="備考"></textarea>
+                    </div>
+                    
+                    <div class="flex gap-4 pt-4">
+                        <button type="submit" class="btn-primary flex-1">
+                            <i class="fas fa-calendar-plus mr-2"></i>将来予約登録
+                        </button>
+                        <button type="button" onclick="closeFutureReservationModal()" class="btn-secondary">
+                            <i class="fas fa-times mr-2"></i>キャンセル
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- フローティングボタン -->
     <button class="floating-button hidden" id="floatingBtn" onclick="showPage('register')" title="操作入力">
         <i class="fas fa-plus"></i>
@@ -961,10 +1234,12 @@
         // データ管理
         let currentRegion = null;
         let dormitories = {};
+        let futureReservations = {};
         let activityLogs = [];
         let currentFilter = 'all';
         let currentSort = 'property';
         let selectedRoomId = null;
+        let currentCalendarView = 'timeline';
 
         // 地域選択
         function selectRegion(region) {
@@ -982,16 +1257,25 @@
 
         // 地域データ読み込み
         function loadRegionData(region) {
-            const storageKey = `dormitories_${region}_v2`;
-            const logsKey = `activityLogs_${region}_v2`;
+            const storageKey = `dormitories_${region}_v3`;
+            const futureKey = `futureReservations_${region}_v3`;
+            const logsKey = `activityLogs_${region}_v3`;
             
             const savedDormitories = localStorage.getItem(storageKey);
+            const savedFutureReservations = localStorage.getItem(futureKey);
             const savedLogs = localStorage.getItem(logsKey);
             
             if (savedDormitories) {
                 dormitories = JSON.parse(savedDormitories);
             } else {
                 initializeRegionData(region);
+            }
+            
+            if (savedFutureReservations) {
+                futureReservations = JSON.parse(savedFutureReservations);
+            } else {
+                futureReservations = {};
+                generateSampleFutureReservations();
             }
             
             if (savedLogs) {
@@ -1001,6 +1285,7 @@
             }
 
             populateSelectOptions();
+            checkFutureReservationAlerts();
         }
 
         function initializeRegionData(region) {
@@ -1031,270 +1316,31 @@
                                 notes: ''
                             };
 
-                            // 入室中の場合はチェックイン日を設定
-                            if (dormitories[roomId].status === 'occupied') {
-                                const checkinDays = Math.floor(Math.random() * 30);
-                                const checkinDate = new Date();
-                                checkinDate.setDate(checkinDate.getDate() - checkinDays);
-                                dormitories[roomId].checkinDate = checkinDate.toISOString().split('T')[0];
-                                
-                                const checkoutDays = Math.floor(Math.random() * 60) + 1;
-                                const checkoutDate = new Date();
-                                checkoutDate.setDate(checkoutDate.getDate() + checkoutDays);
-                                dormitories[roomId].checkoutDate = checkoutDate.toISOString().split('T')[0];
-                                
-                                dormitories[roomId].residentName = generateRandomName();
-                            }
+                            // 将来予約アラート（3日以内）
+            Object.values(futureReservations).forEach(reservation => {
+                if (!reservation.isConverted) {
+                    const daysUntil = Math.ceil((new Date(reservation.checkinDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    if (daysUntil <= 3 && daysUntil >= 0) {
+                        const room = dormitories[reservation.roomId];
+                        alerts.push({
+                            type: 'future',
+                            title: '将来予約チェックイン間近',
+                            message: `${room.property} 部屋${room.roomNumber} - ${reservation.residentName} (${daysUntil}日後)`,
+                            roomId: reservation.roomId,
+                            reservationId: reservation.id
                         });
-                    });
+                    }
+                }
+            });
+
+            // 予約競合チェック
+            checkReservationConflicts().forEach(conflict => {
+                alerts.push({
+                    type: 'conflict',
+                    title: '予約競合あり',
+                    message: conflict.message,
+                    roomId: conflict.roomId
                 });
-            }
-            
-            saveData();
-        }
-
-        function generateRandomName() {
-            const surnames = ['田中', '佐藤', '鈴木', '高橋', '渡辺', '山田', '中村', '小林', '加藤', '吉田'];
-            const names = ['太郎', '花子', '次郎', '美咲', '健太', '由美', '翔太', '愛', '大輔', '恵'];
-            return surnames[Math.floor(Math.random() * surnames.length)] + names[Math.floor(Math.random() * names.length)];
-        }
-
-        function getRandomStatus() {
-            const statuses = ['vacant', 'occupied', 'cleaning', 'maintenance'];
-            const weights = [0.2, 0.6, 0.15, 0.05];
-            
-            const random = Math.random();
-            let cumulative = 0;
-            
-            for (let i = 0; i < statuses.length; i++) {
-                cumulative += weights[i];
-                if (random < cumulative) {
-                    return statuses[i];
-                }
-            }
-            return 'vacant';
-        }
-
-        function saveData() {
-            if (!currentRegion) return;
-            
-            const storageKey = `dormitories_${currentRegion}_v2`;
-            const logsKey = `activityLogs_${currentRegion}_v2`;
-            
-            localStorage.setItem(storageKey, JSON.stringify(dormitories));
-            localStorage.setItem(logsKey, JSON.stringify(activityLogs));
-        }
-
-        // セレクトボックス設定
-        function populateSelectOptions() {
-            const checkRoomSelect = document.getElementById('checkRoomSelect');
-            
-            checkRoomSelect.innerHTML = '<option value="">選択してください</option>';
-            
-            Object.values(dormitories).forEach(room => {
-                const option = document.createElement('option');
-                option.value = `${room.region}_${room.store}_${room.property}_${room.roomNumber}`;
-                option.textContent = `${room.store} - ${room.property} 部屋${room.roomNumber}`;
-                
-                checkRoomSelect.appendChild(option.cloneNode(true));
-            });
-        }
-
-        // ページ表示切替
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-            document.getElementById(pageId).classList.remove('hidden');
-            
-            if (pageId === 'dashboard') {
-                updateStatistics();
-                renderRooms();
-            } else if (pageId === 'alerts') {
-                renderAlerts();
-            }
-        }
-
-        // 統計更新
-        function updateStatistics() {
-            const stats = { vacant: 0, occupied: 0, cleaning: 0, maintenance: 0 };
-            
-            Object.values(dormitories).forEach(room => {
-                stats[room.status]++;
-            });
-            
-            document.getElementById('vacantCount').textContent = stats.vacant;
-            document.getElementById('occupiedCount').textContent = stats.occupied;
-            document.getElementById('cleaningCount').textContent = stats.cleaning;
-            document.getElementById('maintenanceCount').textContent = stats.maintenance;
-        }
-
-        // 寮一覧描画
-        function renderRooms() {
-            const container = document.getElementById('roomsGrid');
-            container.innerHTML = '';
-
-            let filteredRooms = Object.entries(dormitories);
-            
-            // フィルタリング
-            if (currentFilter === 'missing-data') {
-                filteredRooms = filteredRooms.filter(([id, room]) => 
-                    (room.status === 'occupied' && (!room.residentName || !room.checkinDate))
-                );
-            } else if (currentFilter !== 'all') {
-                filteredRooms = filteredRooms.filter(([id, room]) => room.status === currentFilter);
-            }
-
-            // ソート
-            filteredRooms.sort((a, b) => {
-                const [idA, roomA] = a;
-                const [idB, roomB] = b;
-                
-                switch (currentSort) {
-                    case 'checkin':
-                        return new Date(roomB.checkinDate || '1900-01-01') - new Date(roomA.checkinDate || '1900-01-01');
-                    case 'checkout':
-                        return new Date(roomA.checkoutDate || '9999-12-31') - new Date(roomB.checkoutDate || '9999-12-31');
-                    case 'resident':
-                        return (roomA.residentName || '').localeCompare(roomB.residentName || '');
-                    case 'updated':
-                        return new Date(roomB.lastUpdated) - new Date(roomA.lastUpdated);
-                    default: // property
-                        return roomA.property.localeCompare(roomB.property);
-                }
-            });
-
-            filteredRooms.forEach(([roomId, room]) => {
-                const card = document.createElement('div');
-                card.className = `room-card status-${room.status}`;
-                
-                const missingData = checkMissingData(room);
-                if (missingData.length > 0) {
-                    card.classList.add('missing-data');
-                }
-                
-                let dateWarnings = '';
-                if (room.checkoutDate && new Date(room.checkoutDate) <= new Date()) {
-                    dateWarnings = '<div class="date-warning"><i class="fas fa-exclamation-triangle mr-1"></i>チェックアウト期限</div>';
-                }
-                
-                card.innerHTML = `
-                    <div class="p-6">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <div class="store-indicator">${room.store}</div>
-                                <h3 class="text-lg font-bold text-gray-800 mb-1">${room.property}</h3>
-                                <p class="text-sm text-gray-600">部屋${room.roomNumber}</p>
-                            </div>
-                            <div class="flex flex-col gap-2 items-end">
-                                <span class="status-badge ${room.status}">
-                                    ${getStatusIcon(room.status)} ${getStatusText(room.status)}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        ${dateWarnings}
-                        
-                        <div class="space-y-3">
-                            ${room.residentName ? `
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <i class="fas fa-user mr-2 text-blue-500"></i>
-                                    <span>${room.residentName}</span>
-                                </div>
-                            ` : ''}
-                            
-                            ${room.checkinDate ? `
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <i class="fas fa-sign-in-alt mr-2 text-green-500"></i>
-                                    <span>チェックイン: ${room.checkinDate}</span>
-                                </div>
-                            ` : ''}
-                            
-                            ${room.checkoutDate ? `
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <i class="fas fa-sign-out-alt mr-2 text-orange-500"></i>
-                                    <span>チェックアウト: ${room.checkoutDate}</span>
-                                </div>
-                            ` : ''}
-                            
-                            ${room.stayAmount ? `
-                                <div class="flex items-center text-sm text-gray-600">
-                                    <i class="fas fa-yen-sign mr-2 text-green-500"></i>
-                                    <span>宿泊料金: ¥${room.stayAmount.toLocaleString()}</span>
-                                </div>
-                            ` : ''}
-                            
-                            ${room.notes ? `
-                                <div class="flex items-start text-sm text-gray-600">
-                                    <i class="fas fa-comment mr-2 mt-1 text-yellow-500"></i>
-                                    <span>${room.notes}</span>
-                                </div>
-                            ` : ''}
-                            
-                            ${missingData.length > 0 ? `
-                                <div class="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i>
-                                    未入力: ${missingData.join(', ')}
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div class="quick-actions">
-                            <button onclick="openDetailModal('${roomId}')" class="quick-action-btn">
-                                <i class="fas fa-edit mr-1"></i>詳細編集
-                            </button>
-                            ${room.status === 'occupied' ? `
-                                <button onclick="quickCheckout('${roomId}')" class="quick-action-btn">
-                                    <i class="fas fa-sign-out-alt mr-1"></i>チェックアウト
-                                </button>
-                            ` : ''}
-                            ${room.status === 'vacant' ? `
-                                <button onclick="quickCheckin('${roomId}')" class="quick-action-btn">
-                                    <i class="fas fa-sign-in-alt mr-1"></i>チェックイン
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // アラート描画
-        function renderAlerts() {
-            const container = document.getElementById('alertsContainer');
-            const today = new Date().toISOString().split('T')[0];
-            const alerts = [];
-
-            Object.entries(dormitories).forEach(([roomId, room]) => {
-                // 本日チェックイン予定
-                if (room.checkinDate === today && room.status !== 'occupied') {
-                    alerts.push({
-                        type: 'checkin',
-                        title: '本日チェックイン予定',
-                        message: `${room.property} 部屋${room.roomNumber} - ${room.residentName || '宿泊者名未入力'}`,
-                        roomId: roomId
-                    });
-                }
-
-                // 本日チェックアウト予定
-                if (room.checkoutDate === today && room.status === 'occupied') {
-                    alerts.push({
-                        type: 'checkout',
-                        title: '本日チェックアウト予定',
-                        message: `${room.property} 部屋${room.roomNumber} - ${room.residentName}`,
-                        roomId: roomId
-                    });
-                }
-
-                // 未入力項目
-                const missing = checkMissingData(room);
-                if (missing.length > 0) {
-                    alerts.push({
-                        type: 'missing',
-                        title: '未入力項目あり',
-                        message: `${room.property} 部屋${room.roomNumber} - ${missing.join(', ')}`,
-                        roomId: roomId
-                    });
-                }
             });
 
             if (alerts.length === 0) {
@@ -1318,9 +1364,16 @@
                                 <div class="text-sm text-gray-600">${alert.message}</div>
                             </div>
                         </div>
-                        <button onclick="openDetailModal('${alert.roomId}')" class="btn-secondary">
-                            詳細
-                        </button>
+                        <div class="flex gap-2">
+                            ${alert.reservationId ? `
+                                <button onclick="convertFutureReservation('${alert.reservationId}')" class="btn-primary text-sm px-3 py-1">
+                                    チェックイン変換
+                                </button>
+                            ` : ''}
+                            <button onclick="openDetailModal('${alert.roomId}')" class="btn-secondary text-sm px-3 py-1">
+                                詳細
+                            </button>
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -1330,7 +1383,9 @@
             const icons = {
                 checkin: 'sign-in-alt',
                 checkout: 'sign-out-alt',
-                missing: 'edit'
+                missing: 'edit',
+                future: 'clock',
+                conflict: 'exclamation-triangle'
             };
             return icons[type] || 'bell';
         }
@@ -1344,6 +1399,89 @@
             }
             
             return missing;
+        }
+
+        function checkReservationConflicts() {
+            const conflicts = [];
+            
+            Object.values(futureReservations).forEach(reservation => {
+                if (!reservation.isConverted) {
+                    const room = dormitories[reservation.roomId];
+                    
+                    // 現在入室中で、チェックアウト日が将来予約のチェックイン日より後の場合
+                    if (room.status === 'occupied' && room.checkoutDate && 
+                        new Date(room.checkoutDate) >= new Date(reservation.checkinDate)) {
+                        conflicts.push({
+                            roomId: reservation.roomId,
+                            message: `${room.property} 部屋${room.roomNumber} - 現在の宿泊と将来予約が重複`
+                        });
+                    }
+                }
+            });
+            
+            return conflicts;
+        }
+
+        function checkFutureReservationAlerts() {
+            // 将来予約のアラートをチェックして通知
+            const today = new Date();
+            Object.values(futureReservations).forEach(reservation => {
+                if (!reservation.isConverted) {
+                    const daysUntil = Math.ceil((new Date(reservation.checkinDate) - today) / (1000 * 60 * 60 * 24));
+                    if (daysUntil === 3) {
+                        // 3日前通知（実際の運用では1日1回だけ通知するような制御が必要）
+                        const room = dormitories[reservation.roomId];
+                        setTimeout(() => {
+                            showNotification(`3日後にチェックイン予定: ${room.property} 部屋${room.roomNumber} - ${reservation.residentName}`, 'info');
+                        }, 2000);
+                    }
+                }
+            });
+        }
+
+        // 予定表示
+        function renderUpcomingSchedule() {
+            const container = document.getElementById('upcomingSchedule');
+            const upcomingCheckouts = Object.entries(dormitories)
+                .filter(([id, room]) => room.status === 'occupied' && room.checkoutDate)
+                .sort((a, b) => new Date(a[1].checkoutDate) - new Date(b[1].checkoutDate))
+                .slice(0, 10);
+
+            if (upcomingCheckouts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-calendar-times text-4xl mb-3"></i>
+                        <p>チェックアウト予定はありません</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = upcomingCheckouts.map(([roomId, room]) => {
+                const daysUntil = Math.ceil((new Date(room.checkoutDate) - new Date()) / (1000 * 60 * 60 * 24));
+                let urgencyClass = '';
+                if (daysUntil <= 0) urgencyClass = 'border-red-500 bg-red-50';
+                else if (daysUntil <= 3) urgencyClass = 'border-yellow-500 bg-yellow-50';
+                
+                return `
+                    <div class="alert-card ${urgencyClass}">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="font-bold text-gray-800">${room.property} 部屋${room.roomNumber}</div>
+                                <div class="text-sm text-gray-600">${room.residentName}</div>
+                                <div class="text-sm text-gray-500">チェックアウト: ${room.checkoutDate}</div>
+                                ${daysUntil <= 0 ? 
+                                    '<div class="text-sm text-red-600 font-bold">⚠️ 期限切れ</div>' :
+                                    daysUntil <= 3 ? `<div class="text-sm text-yellow-600 font-bold">⚠️ ${daysUntil}日後</div>` : ''
+                                }
+                            </div>
+                            <button onclick="quickCheckout('${roomId}')" class="btn-secondary text-sm px-3 py-1">
+                                チェックアウト
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // フィルター・ソート
@@ -1384,6 +1522,39 @@
             selectedRoomId = null;
         }
 
+        function openFutureReservationModal() {
+            document.getElementById('futureReservationModal').classList.remove('hidden');
+            
+            // 明日の日付をデフォルトに設定
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('modalFutureCheckinDate').value = tomorrow.toISOString().split('T')[0];
+        }
+
+        function closeFutureReservationModal() {
+            document.getElementById('futureReservationModal').classList.add('hidden');
+            document.getElementById('modalFutureReservationForm').reset();
+        }
+
+        function editFutureReservation(reservationId) {
+            const reservation = futureReservations[reservationId];
+            if (!reservation) return;
+            
+            // モーダルに値を設定
+            document.getElementById('modalFutureRoomSelect').value = reservation.roomId;
+            document.getElementById('modalFutureResidentName').value = reservation.residentName;
+            document.getElementById('modalFutureCheckinDate').value = reservation.checkinDate;
+            document.getElementById('modalFutureCheckoutDate').value = reservation.checkoutDate || '';
+            document.getElementById('modalFutureStayAmount').value = reservation.stayAmount || '';
+            document.getElementById('modalFutureStaffName').value = reservation.staff;
+            document.getElementById('modalFutureNotes').value = reservation.notes || '';
+            
+            // 編集モードとしてマーク
+            document.getElementById('modalFutureReservationForm').dataset.editId = reservationId;
+            
+            openFutureReservationModal();
+        }
+
         function cancelReservation() {
             if (!selectedRoomId) return;
             
@@ -1392,7 +1563,7 @@
                 room.status = 'cancelled';
                 room.lastUpdated = new Date().toISOString();
                 
-                addActivityLog(selectedRoomId, 'cancel', '管理者', 'キャンセル処理');
+                addActivityLog(selectedRoomId, 'cancel', '担当者', 'キャンセル処理');
                 saveData();
                 updateStatistics();
                 renderRooms();
@@ -1438,6 +1609,17 @@
                     return;
                 }
                 
+                // 将来予約との競合チェック
+                const conflict = Object.values(futureReservations).find(reservation => 
+                    reservation.roomId === roomId && 
+                    !reservation.isConverted &&
+                    checkinDate <= reservation.checkinDate
+                );
+                
+                if (conflict && !confirm(`この部屋には${conflict.checkinDate}に将来予約があります。続行しますか？`)) {
+                    return;
+                }
+                
                 room.status = 'occupied';
                 room.residentName = residentName;
                 room.checkinDate = checkinDate;
@@ -1456,6 +1638,8 @@
             saveData();
             updateStatistics();
             renderRooms();
+            renderUpcomingSchedule();
+            renderFutureReservationsList();
             populateSelectOptions();
             
             this.reset();
@@ -1481,9 +1665,147 @@
             saveData();
             updateStatistics();
             renderRooms();
+            renderUpcomingSchedule();
+            renderFutureReservationsList();
             populateSelectOptions();
             closeDetailModal();
             showNotification('情報を更新しました', 'success');
+        });
+
+        // 将来予約フォーム処理
+        document.getElementById('futureReservationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const roomId = document.getElementById('futureRoomSelect').value;
+            const residentName = document.getElementById('futureResidentName').value;
+            const checkinDate = document.getElementById('futureCheckinDate').value;
+            const checkoutDate = document.getElementById('futureCheckoutDate').value;
+            const stayAmount = document.getElementById('futureStayAmount').value;
+            const staff = document.getElementById('futureStaffName').value;
+            const notes = document.getElementById('futureNotes').value;
+            
+            if (!roomId || !residentName || !checkinDate || !staff) {
+                showNotification('必須項目を入力してください', 'error');
+                return;
+            }
+            
+            // 過去日付チェック
+            if (new Date(checkinDate) <= new Date()) {
+                showNotification('チェックイン予定日は明日以降を選択してください', 'error');
+                return;
+            }
+            
+            // 競合チェック
+            const room = dormitories[roomId];
+            if (room.status === 'occupied' && room.checkoutDate && 
+                new Date(room.checkoutDate) >= new Date(checkinDate)) {
+                if (!confirm('現在の宿泊と期間が重複しています。続行しますか？')) {
+                    return;
+                }
+            }
+            
+            // 既存の将来予約との競合チェック
+            const conflictReservation = Object.values(futureReservations).find(reservation => 
+                reservation.roomId === roomId && 
+                !reservation.isConverted &&
+                reservation.checkinDate === checkinDate
+            );
+            
+            if (conflictReservation) {
+                showNotification('同じ日に既に将来予約があります', 'error');
+                return;
+            }
+            
+            const reservationId = `future_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            futureReservations[reservationId] = {
+                id: reservationId,
+                roomId: roomId,
+                residentName: residentName,
+                checkinDate: checkinDate,
+                checkoutDate: checkoutDate,
+                stayAmount: parseInt(stayAmount) || 0,
+                staff: staff,
+                notes: notes,
+                createdAt: new Date().toISOString(),
+                isConverted: false
+            };
+            
+            addActivityLog(roomId, 'future-reserve', staff, `将来予約登録: ${residentName} (${checkinDate})`);
+            saveData();
+            updateStatistics();
+            renderRooms();
+            renderFutureReservationsList();
+            
+            this.reset();
+            showNotification('将来予約を登録しました', 'success');
+        });
+
+        // モーダル将来予約フォーム処理
+        document.getElementById('modalFutureReservationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const editId = this.dataset.editId;
+            const roomId = document.getElementById('modalFutureRoomSelect').value;
+            const residentName = document.getElementById('modalFutureResidentName').value;
+            const checkinDate = document.getElementById('modalFutureCheckinDate').value;
+            const checkoutDate = document.getElementById('modalFutureCheckoutDate').value;
+            const stayAmount = document.getElementById('modalFutureStayAmount').value;
+            const staff = document.getElementById('modalFutureStaffName').value;
+            const notes = document.getElementById('modalFutureNotes').value;
+            
+            if (!roomId || !residentName || !checkinDate || !staff) {
+                showNotification('必須項目を入力してください', 'error');
+                return;
+            }
+            
+            // 過去日付チェック
+            if (new Date(checkinDate) <= new Date()) {
+                showNotification('チェックイン予定日は明日以降を選択してください', 'error');
+                return;
+            }
+            
+            if (editId) {
+                // 編集モード
+                const reservation = futureReservations[editId];
+                reservation.roomId = roomId;
+                reservation.residentName = residentName;
+                reservation.checkinDate = checkinDate;
+                reservation.checkoutDate = checkoutDate;
+                reservation.stayAmount = parseInt(stayAmount) || 0;
+                reservation.staff = staff;
+                reservation.notes = notes;
+                reservation.updatedAt = new Date().toISOString();
+                
+                addActivityLog(roomId, 'update-future', staff, `将来予約更新: ${residentName}`);
+                showNotification('将来予約を更新しました', 'success');
+            } else {
+                // 新規登録
+                const reservationId = `future_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                futureReservations[reservationId] = {
+                    id: reservationId,
+                    roomId: roomId,
+                    residentName: residentName,
+                    checkinDate: checkinDate,
+                    checkoutDate: checkoutDate,
+                    stayAmount: parseInt(stayAmount) || 0,
+                    staff: staff,
+                    notes: notes,
+                    createdAt: new Date().toISOString(),
+                    isConverted: false
+                };
+                
+                addActivityLog(roomId, 'future-reserve', staff, `将来予約登録: ${residentName} (${checkinDate})`);
+                showNotification('将来予約を登録しました', 'success');
+            }
+            
+            saveData();
+            updateStatistics();
+            renderRooms();
+            renderFutureReservationsList();
+            closeFutureReservationModal();
+            
+            // 編集IDをクリア
+            delete this.dataset.editId;
         });
 
         // クイックアクション
@@ -1492,6 +1814,16 @@
             if (!residentName) return;
             
             const room = dormitories[roomId];
+            
+            // 将来予約があるかチェック
+            const futureReservation = getFutureReservationForRoom(roomId);
+            if (futureReservation) {
+                if (confirm(`この部屋には将来予約があります。将来予約をチェックインに変換しますか？`)) {
+                    convertFutureReservation(futureReservation.id);
+                    return;
+                }
+            }
+            
             room.status = 'occupied';
             room.residentName = residentName;
             room.checkinDate = new Date().toISOString().split('T')[0];
@@ -1501,6 +1833,8 @@
             saveData();
             updateStatistics();
             renderRooms();
+            renderUpcomingSchedule();
+            renderFutureReservationsList();
             populateSelectOptions();
             showNotification('チェックインを完了しました', 'success');
         }
@@ -1516,9 +1850,74 @@
                 saveData();
                 updateStatistics();
                 renderRooms();
+                renderUpcomingSchedule();
+                renderFutureReservationsList();
                 populateSelectOptions();
                 showNotification('チェックアウトを完了しました', 'success');
             }
+        }
+
+        // CSV出力
+        function exportCalendarCSV() {
+            const rooms = Object.values(dormitories);
+            const today = new Date();
+            const dates = [];
+            
+            // 30日間のデータを出力
+            for (let i = 0; i < 30; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date.toISOString().split('T')[0]);
+            }
+            
+            let csvContent = 'data:text/csv;charset=utf-8,';
+            
+            // ヘッダー行
+            csvContent += '物件,部屋番号,' + dates.join(',') + '\n';
+            
+            // データ行
+            rooms.forEach(room => {
+                const roomId = `${room.region}_${room.store}_${room.property}_${room.roomNumber}`;
+                let row = `${room.property},${room.roomNumber}`;
+                
+                dates.forEach(date => {
+                    const reservation = getReservationForDate(room, date);
+                    if (reservation) {
+                        row += `,${reservation.name}`;
+                    } else {
+                        row += ',空室';
+                    }
+                });
+                
+                csvContent += row + '\n';
+            });
+            
+            // 将来予約情報も追加
+            csvContent += '\n将来予約一覧\n';
+            csvContent += '物件,部屋番号,宿泊者名,チェックイン予定日,担当者\n';
+            
+            Object.values(futureReservations).forEach(reservation => {
+                if (!reservation.isConverted) {
+                    const room = dormitories[reservation.roomId];
+                    csvContent += `${room.property},${room.roomNumber},${reservation.residentName},${reservation.checkinDate},${reservation.staff}\n`;
+                }
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `予約カレンダー_${currentRegion}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('カレンダーデータをCSV出力しました', 'success');
+        }
+
+        // 管理画面リンク
+        function openAdminPage() {
+            // 実際の運用では admin.html にリンク
+            showNotification('管理画面は別途実装が必要です', 'info');
         }
 
         // ユーティリティ関数
@@ -1528,7 +1927,8 @@
                 occupied: '入室中',
                 cleaning: '清掃中',
                 maintenance: 'メンテナンス',
-                cancelled: 'キャンセル'
+                cancelled: 'キャンセル',
+                reserved: '予約済'
             };
             return statusMap[status] || status;
         }
@@ -1539,7 +1939,8 @@
                 occupied: '🏠',
                 cleaning: '🧹',
                 maintenance: '🔧',
-                cancelled: '❌'
+                cancelled: '❌',
+                reserved: '📅'
             };
             return iconMap[status] || '❓';
         }
@@ -1595,11 +1996,640 @@
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('regionSelection').classList.remove('hidden');
-            console.log('寮管理システム v2.0 が正常に読み込まれました');
+            console.log('寮管理システム v3.0（予約カレンダー対応）が正常に読み込まれました');
+            
+            // 今日の日付をデフォルトに設定
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkinDate').value = today;
+            
+            // 明日の日付を将来予約デフォルトに設定
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('futureCheckinDate').value = tomorrow.toISOString().split('T')[0];
         });
 
-        // 今日の日付をデフォルトに設定
-        document.getElementById('checkinDate').value = new Date().toISOString().split('T')[0];
+        // キーボードショートカット
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+N で将来予約モーダル
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                openFutureReservationModal();
+            }
+            
+            // ESCでモーダルを閉じる
+            if (e.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal-overlay:not(.hidden)');
+                modals.forEach(modal => modal.classList.add('hidden'));
+            }
+        });
     </script>
 </body>
-</html>
+</html> 入室中の場合はチェックイン日を設定
+                            if (dormitories[roomId].status === 'occupied') {
+                                const checkinDays = Math.floor(Math.random() * 30);
+                                const checkinDate = new Date();
+                                checkinDate.setDate(checkinDate.getDate() - checkinDays);
+                                dormitories[roomId].checkinDate = checkinDate.toISOString().split('T')[0];
+                                
+                                const checkoutDays = Math.floor(Math.random() * 60) + 1;
+                                const checkoutDate = new Date();
+                                checkoutDate.setDate(checkoutDate.getDate() + checkoutDays);
+                                dormitories[roomId].checkoutDate = checkoutDate.toISOString().split('T')[0];
+                                
+                                dormitories[roomId].residentName = generateRandomName();
+                            }
+                        });
+                    });
+                });
+            }
+            
+            saveData();
+        }
+
+        function generateSampleFutureReservations() {
+            // サンプル将来予約を生成
+            const roomIds = Object.keys(dormitories);
+            for (let i = 0; i < Math.min(5, roomIds.length); i++) {
+                const roomId = roomIds[Math.floor(Math.random() * roomIds.length)];
+                const room = dormitories[roomId];
+                
+                if (room.status === 'vacant' || room.status === 'cleaning') {
+                    const futureDate = new Date();
+                    futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 30) + 1);
+                    
+                    const reservationId = `future_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    futureReservations[reservationId] = {
+                        id: reservationId,
+                        roomId: roomId,
+                        residentName: generateRandomName(),
+                        checkinDate: futureDate.toISOString().split('T')[0],
+                        checkoutDate: '',
+                        stayAmount: Math.floor(Math.random() * 20000) + 50000,
+                        staff: 'サンプル担当者',
+                        notes: 'サンプル将来予約',
+                        createdAt: new Date().toISOString(),
+                        isConverted: false
+                    };
+                }
+            }
+            saveData();
+        }
+
+        function generateRandomName() {
+            const surnames = ['田中', '佐藤', '鈴木', '高橋', '渡辺', '山田', '中村', '小林', '加藤', '吉田'];
+            const names = ['太郎', '花子', '次郎', '美咲', '健太', '由美', '翔太', '愛', '大輔', '恵'];
+            return surnames[Math.floor(Math.random() * surnames.length)] + names[Math.floor(Math.random() * names.length)];
+        }
+
+        function getRandomStatus() {
+            const statuses = ['vacant', 'occupied', 'cleaning', 'maintenance'];
+            const weights = [0.3, 0.5, 0.15, 0.05];
+            
+            const random = Math.random();
+            let cumulative = 0;
+            
+            for (let i = 0; i < statuses.length; i++) {
+                cumulative += weights[i];
+                if (random < cumulative) {
+                    return statuses[i];
+                }
+            }
+            return 'vacant';
+        }
+
+        function saveData() {
+            if (!currentRegion) return;
+            
+            const storageKey = `dormitories_${currentRegion}_v3`;
+            const futureKey = `futureReservations_${currentRegion}_v3`;
+            const logsKey = `activityLogs_${currentRegion}_v3`;
+            
+            localStorage.setItem(storageKey, JSON.stringify(dormitories));
+            localStorage.setItem(futureKey, JSON.stringify(futureReservations));
+            localStorage.setItem(logsKey, JSON.stringify(activityLogs));
+        }
+
+        // セレクトボックス設定
+        function populateSelectOptions() {
+            const checkRoomSelect = document.getElementById('checkRoomSelect');
+            const futureRoomSelect = document.getElementById('futureRoomSelect');
+            const modalFutureRoomSelect = document.getElementById('modalFutureRoomSelect');
+            
+            [checkRoomSelect, futureRoomSelect, modalFutureRoomSelect].forEach(select => {
+                select.innerHTML = '<option value="">選択してください</option>';
+                
+                Object.values(dormitories).forEach(room => {
+                    const option = document.createElement('option');
+                    option.value = `${room.region}_${room.store}_${room.property}_${room.roomNumber}`;
+                    option.textContent = `${room.store} - ${room.property} 部屋${room.roomNumber}`;
+                    
+                    select.appendChild(option.cloneNode(true));
+                });
+            });
+        }
+
+        // ページ表示切替
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            // ナビゲーション更新
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-purple-600', 'font-bold');
+                btn.classList.add('text-gray-600');
+            });
+            
+            if (pageId === 'dashboard') {
+                updateStatistics();
+                renderRooms();
+                renderUpcomingSchedule();
+                renderFutureReservationsList();
+            } else if (pageId === 'calendar') {
+                renderCalendar();
+            } else if (pageId === 'alerts') {
+                renderAlerts();
+            }
+        }
+
+        // 統計更新
+        function updateStatistics() {
+            const stats = { vacant: 0, occupied: 0, cleaning: 0, maintenance: 0 };
+            
+            Object.values(dormitories).forEach(room => {
+                stats[room.status]++;
+            });
+            
+            const futureCount = Object.keys(futureReservations).filter(id => !futureReservations[id].isConverted).length;
+            
+            document.getElementById('vacantCount').textContent = stats.vacant;
+            document.getElementById('occupiedCount').textContent = stats.occupied;
+            document.getElementById('cleaningCount').textContent = stats.cleaning;
+            document.getElementById('maintenanceCount').textContent = stats.maintenance;
+            document.getElementById('futureReservationsCount').textContent = futureCount;
+        }
+
+        // 寮一覧描画
+        function renderRooms() {
+            const container = document.getElementById('roomsGrid');
+            container.innerHTML = '';
+
+            let filteredRooms = Object.entries(dormitories);
+            
+            // フィルタリング
+            if (currentFilter === 'missing-data') {
+                filteredRooms = filteredRooms.filter(([id, room]) => 
+                    (room.status === 'occupied' && (!room.residentName || !room.checkinDate))
+                );
+            } else if (currentFilter === 'has-future') {
+                filteredRooms = filteredRooms.filter(([id, room]) => 
+                    hasActiveFutureReservation(id)
+                );
+            } else if (currentFilter === 'checkout-today') {
+                const today = new Date().toISOString().split('T')[0];
+                filteredRooms = filteredRooms.filter(([id, room]) => 
+                    room.checkoutDate === today && room.status === 'occupied'
+                );
+            } else if (currentFilter === 'checkout-week') {
+                const nextWeek = new Date();
+                nextWeek.setDate(nextWeek.getDate() + 7);
+                const nextWeekStr = nextWeek.toISOString().split('T')[0];
+                filteredRooms = filteredRooms.filter(([id, room]) => 
+                    room.checkoutDate && room.checkoutDate <= nextWeekStr && room.status === 'occupied'
+                );
+            } else if (currentFilter === 'long-term') {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+                filteredRooms = filteredRooms.filter(([id, room]) => 
+                    room.checkinDate && room.checkinDate <= thirtyDaysAgoStr && room.status === 'occupied'
+                );
+            } else if (currentFilter !== 'all') {
+                filteredRooms = filteredRooms.filter(([id, room]) => room.status === currentFilter);
+            }
+
+            // ソート
+            filteredRooms.sort((a, b) => {
+                const [idA, roomA] = a;
+                const [idB, roomB] = b;
+                
+                switch (currentSort) {
+                    case 'checkin':
+                        return new Date(roomB.checkinDate || '1900-01-01') - new Date(roomA.checkinDate || '1900-01-01');
+                    case 'checkout':
+                        return new Date(roomA.checkoutDate || '9999-12-31') - new Date(roomB.checkoutDate || '9999-12-31');
+                    case 'resident':
+                        return (roomA.residentName || '').localeCompare(roomB.residentName || '');
+                    case 'updated':
+                        return new Date(roomB.lastUpdated) - new Date(roomA.lastUpdated);
+                    default: // property
+                        return roomA.property.localeCompare(roomB.property);
+                }
+            });
+
+            filteredRooms.forEach(([roomId, room]) => {
+                const card = document.createElement('div');
+                card.className = `room-card status-${room.status}`;
+                
+                const missingData = checkMissingData(room);
+                if (missingData.length > 0) {
+                    card.classList.add('missing-data');
+                }
+                
+                // 将来予約情報
+                const futureReservationInfo = getFutureReservationForRoom(roomId);
+                
+                let dateWarnings = '';
+                if (room.checkoutDate && new Date(room.checkoutDate) <= new Date()) {
+                    dateWarnings = '<div class="date-warning"><i class="fas fa-exclamation-triangle mr-1"></i>チェックアウト期限</div>';
+                }
+                
+                card.innerHTML = `
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="store-indicator">${room.store}</div>
+                                <h3 class="text-lg font-bold text-gray-800 mb-1">${room.property}</h3>
+                                <p class="text-sm text-gray-600">部屋${room.roomNumber}</p>
+                            </div>
+                            <div class="flex flex-col gap-2 items-end">
+                                <span class="status-badge ${room.status}">
+                                    ${getStatusIcon(room.status)} ${getStatusText(room.status)}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        ${dateWarnings}
+                        
+                        <div class="space-y-3">
+                            ${room.residentName ? `
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-user mr-2 text-blue-500"></i>
+                                    <span>${room.residentName}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${room.checkinDate ? `
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-sign-in-alt mr-2 text-green-500"></i>
+                                    <span>チェックイン: ${room.checkinDate}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${room.checkoutDate ? `
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-sign-out-alt mr-2 text-orange-500"></i>
+                                    <span>チェックアウト: ${room.checkoutDate}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${room.stayAmount ? `
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-yen-sign mr-2 text-green-500"></i>
+                                    <span>宿泊料金: ¥${room.stayAmount.toLocaleString()}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${futureReservationInfo ? `
+                                <div class="future-reservation-card">
+                                    <div class="flex items-center text-xs">
+                                        <i class="fas fa-calendar-alt mr-2"></i>
+                                        <span>将来予約: ${futureReservationInfo.residentName}</span>
+                                    </div>
+                                    <div class="text-xs mt-1">チェックイン予定: ${futureReservationInfo.checkinDate}</div>
+                                </div>
+                            ` : ''}
+                            
+                            ${room.notes ? `
+                                <div class="flex items-start text-sm text-gray-600">
+                                    <i class="fas fa-comment mr-2 mt-1 text-yellow-500"></i>
+                                    <span>${room.notes}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${missingData.length > 0 ? `
+                                <div class="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                    未入力: ${missingData.join(', ')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <button onclick="openDetailModal('${roomId}')" class="quick-action-btn">
+                                <i class="fas fa-edit mr-1"></i>詳細編集
+                            </button>
+                            ${room.status === 'occupied' ? `
+                                <button onclick="quickCheckout('${roomId}')" class="quick-action-btn">
+                                    <i class="fas fa-sign-out-alt mr-1"></i>チェックアウト
+                                </button>
+                            ` : ''}
+                            ${room.status === 'vacant' || room.status === 'cleaning' ? `
+                                <button onclick="quickCheckin('${roomId}')" class="quick-action-btn">
+                                    <i class="fas fa-sign-in-alt mr-1"></i>チェックイン
+                                </button>
+                            ` : ''}
+                            ${futureReservationInfo ? `
+                                <button onclick="convertFutureReservation('${futureReservationInfo.id}')" class="quick-action-btn">
+                                    <i class="fas fa-arrow-right mr-1"></i>チェックイン変換
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 将来予約関連
+        function hasActiveFutureReservation(roomId) {
+            return Object.values(futureReservations).some(reservation => 
+                reservation.roomId === roomId && !reservation.isConverted
+            );
+        }
+
+        function getFutureReservationForRoom(roomId) {
+            const reservations = Object.values(futureReservations).filter(reservation => 
+                reservation.roomId === roomId && !reservation.isConverted
+            );
+            if (reservations.length > 0) {
+                // 最も近い予約日の予約を返す
+                return reservations.sort((a, b) => new Date(a.checkinDate) - new Date(b.checkinDate))[0];
+            }
+            return null;
+        }
+
+        function renderFutureReservationsList() {
+            const container = document.getElementById('futureReservationsList');
+            const activeReservations = Object.values(futureReservations)
+                .filter(reservation => !reservation.isConverted)
+                .sort((a, b) => new Date(a.checkinDate) - new Date(b.checkinDate));
+
+            if (activeReservations.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-calendar-times text-4xl mb-3"></i>
+                        <p>将来予約はありません</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activeReservations.map(reservation => {
+                const room = dormitories[reservation.roomId];
+                const daysUntil = Math.ceil((new Date(reservation.checkinDate) - new Date()) / (1000 * 60 * 60 * 24));
+                
+                return `
+                    <div class="future-reservation-card">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-bold text-sm">${room.property} 部屋${room.roomNumber}</div>
+                                <div class="text-xs mt-1">${reservation.residentName}</div>
+                                <div class="text-xs">チェックイン予定: ${reservation.checkinDate}</div>
+                                ${daysUntil <= 3 ? `<div class="text-xs text-yellow-200 font-bold">⚠️ ${daysUntil}日後</div>` : ''}
+                            </div>
+                            <div class="flex gap-1">
+                                ${daysUntil <= 3 ? `
+                                    <button onclick="convertFutureReservation('${reservation.id}')" class="text-xs px-2 py-1 bg-white/20 rounded">
+                                        変換
+                                    </button>
+                                ` : ''}
+                                <button onclick="editFutureReservation('${reservation.id}')" class="text-xs px-2 py-1 bg-white/20 rounded">
+                                    編集
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function convertFutureReservation(reservationId) {
+            const reservation = futureReservations[reservationId];
+            if (!reservation) return;
+
+            const room = dormitories[reservation.roomId];
+            
+            if (room.status !== 'vacant' && room.status !== 'cleaning') {
+                showNotification('部屋が空室または清掃中でないため、チェックイン変換できません', 'error');
+                return;
+            }
+
+            if (confirm(`${reservation.residentName}さんの将来予約をチェックインに変換しますか？`)) {
+                // 部屋のステータスを更新
+                room.status = 'occupied';
+                room.residentName = reservation.residentName;
+                room.checkinDate = new Date().toISOString().split('T')[0];
+                room.checkoutDate = reservation.checkoutDate || '';
+                room.stayAmount = reservation.stayAmount || room.stayAmount;
+                room.notes = reservation.notes || '';
+                room.staff = reservation.staff;
+                room.lastUpdated = new Date().toISOString();
+
+                // 将来予約を変換済みにマーク
+                reservation.isConverted = true;
+                reservation.convertedAt = new Date().toISOString();
+
+                addActivityLog(reservation.roomId, 'convert-future', reservation.staff, `将来予約からチェックイン変換: ${reservation.residentName}`);
+                saveData();
+                updateStatistics();
+                renderRooms();
+                renderFutureReservationsList();
+                showNotification('将来予約をチェックインに変換しました', 'success');
+            }
+        }
+
+        // カレンダー表示
+        function setCalendarView(view) {
+            currentCalendarView = view;
+            
+            document.querySelectorAll('.view-toggle').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`${view}ViewBtn`).classList.add('active');
+            
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendarDisplay');
+            
+            if (currentCalendarView === 'timeline') {
+                renderTimelineView(container);
+            } else if (currentCalendarView === 'grid') {
+                renderGridView(container);
+            } else if (currentCalendarView === 'month') {
+                renderMonthView(container);
+            }
+        }
+
+        function renderTimelineView(container) {
+            const rooms = Object.values(dormitories);
+            const today = new Date();
+            const dates = [];
+            
+            // 14日間のタイムライン
+            for (let i = 0; i < 14; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date);
+            }
+
+            container.innerHTML = `
+                <div class="timeline-view">
+                    <div>
+                        <div class="timeline-room" style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">
+                            <strong>部屋</strong>
+                        </div>
+                        ${rooms.map(room => `
+                            <div class="timeline-room">
+                                <div class="text-xs text-gray-500">${room.store}</div>
+                                <div class="font-bold">${room.property}</div>
+                                <div class="text-sm">部屋${room.roomNumber}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div>
+                        <div class="timeline-dates">
+                            ${dates.map(date => `
+                                <div class="timeline-date-header">
+                                    <div>${date.getMonth() + 1}/${date.getDate()}</div>
+                                    <div class="text-xs">${['日', '月', '火', '水', '木', '金', '土'][date.getDay()]}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${rooms.map(room => `
+                            <div class="timeline-dates">
+                                ${dates.map(date => {
+                                    const dateStr = date.toISOString().split('T')[0];
+                                    const reservation = getReservationForDate(room, dateStr);
+                                    return `
+                                        <div class="timeline-cell" onclick="openTimelineReservation('${room.region}_${room.store}_${room.property}_${room.roomNumber}', '${dateStr}')">
+                                            ${reservation ? `
+                                                <div class="timeline-reservation reservation-${reservation.type}">
+                                                    ${reservation.name}
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getReservationForDate(room, dateStr) {
+            const roomId = `${room.region}_${room.store}_${room.property}_${room.roomNumber}`;
+            
+            // 現在の宿泊をチェック
+            if (room.status === 'occupied' && room.checkinDate && room.checkoutDate) {
+                if (dateStr >= room.checkinDate && dateStr <= room.checkoutDate) {
+                    return {
+                        type: 'occupied',
+                        name: room.residentName || '宿泊者'
+                    };
+                }
+            }
+            
+            // 清掃・メンテナンスをチェック
+            if (room.status === 'cleaning') {
+                return {
+                    type: 'cleaning',
+                    name: '清掃中'
+                };
+            }
+            
+            if (room.status === 'maintenance') {
+                return {
+                    type: 'maintenance',
+                    name: 'メンテナンス'
+                };
+            }
+            
+            // 将来予約をチェック
+            const futureReservation = Object.values(futureReservations).find(reservation => 
+                reservation.roomId === roomId && 
+                !reservation.isConverted &&
+                reservation.checkinDate === dateStr
+            );
+            
+            if (futureReservation) {
+                return {
+                    type: 'future',
+                    name: futureReservation.residentName
+                };
+            }
+            
+            return null;
+        }
+
+        function renderGridView(container) {
+            container.innerHTML = `
+                <div class="p-6">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-th text-4xl mb-4"></i>
+                        <p class="text-xl">グリッド表示は開発中です</p>
+                        <p>タイムライン表示をご利用ください</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMonthView(container) {
+            container.innerHTML = `
+                <div class="p-6">
+                    <div class="text-center text-gray-500">
+                        <i class="fas fa-calendar text-4xl mb-4"></i>
+                        <p class="text-xl">月表示は開発中です</p>
+                        <p>タイムライン表示をご利用ください</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openTimelineReservation(roomId, dateStr) {
+            // タイムラインセルクリック時の処理
+            console.log('Timeline reservation clicked:', roomId, dateStr);
+        }
+
+        // アラート描画
+        function renderAlerts() {
+            const container = document.getElementById('alertsContainer');
+            const today = new Date().toISOString().split('T')[0];
+            const alerts = [];
+
+            Object.entries(dormitories).forEach(([roomId, room]) => {
+                // 本日チェックイン予定
+                if (room.checkinDate === today && room.status !== 'occupied') {
+                    alerts.push({
+                        type: 'checkin',
+                        title: '本日チェックイン予定',
+                        message: `${room.property} 部屋${room.roomNumber} - ${room.residentName || '宿泊者名未入力'}`,
+                        roomId: roomId
+                    });
+                }
+
+                // 本日チェックアウト予定
+                if (room.checkoutDate === today && room.status === 'occupied') {
+                    alerts.push({
+                        type: 'checkout',
+                        title: '本日チェックアウト予定',
+                        message: `${room.property} 部屋${room.roomNumber} - ${room.residentName}`,
+                        roomId: roomId
+                    });
+                }
+
+                // 未入力項目
+                const missing = checkMissingData(room);
+                if (missing.length > 0) {
+                    alerts.push({
+                        type: 'missing',
+                        title: '未入力項目あり',
+                        message: `${room.property} 部屋${room.roomNumber} - ${missing.join(', ')}`,
+                        roomId: roomId
+                    });
+                }
+            });
+
+            //
