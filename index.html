@@ -625,7 +625,7 @@
                     🏢 寮管理システム v3.0
                 </h1>
                 <p class="text-2xl text-white/90 mb-4 drop-shadow">担当地域を選択してください</p>
-                <p class="text-lg text-white/70 drop-shadow">📅 予約カレンダー対応 | チェックイン・アウト管理 | 将来予約機能</p>
+                <p class="text-lg text-white/70 drop-shadow">📅 予約カレンダー対応 | チェックイン・アウト管理 | 予約機能</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -783,7 +783,7 @@
                 <div class="metric-card future">
                     <div class="text-4xl mb-3">📅</div>
                     <div class="text-3xl font-black text-gray-800 mb-1" id="futureReservationsCount">0</div>
-                    <div class="text-sm font-medium text-gray-600">将来予約</div>
+                    <div class="text-sm font-medium text-gray-600">予約</div>
                 </div>
             </div>
 
@@ -799,10 +799,10 @@
                     </div>
                 </div>
 
-                <!-- 将来予約一覧 -->
+                <!-- 予約一覧 -->
                 <div class="glass-card p-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">
-                        <i class="fas fa-clock mr-2 text-purple-600"></i>将来予約一覧
+                        <i class="fas fa-clock mr-2 text-purple-600"></i>予約一覧
                     </h3>
                     <div id="futureReservationsList" class="space-y-3 max-h-96 overflow-y-auto">
                         <!-- 動的に生成 -->
@@ -831,7 +831,7 @@
                                 🧹 清掃中
                             </button>
                             <button onclick="filterRooms('has-future')" class="filter-button">
-                                📅 将来予約あり
+                                📅 予約あり
                             </button>
                             <button onclick="filterRooms('checkout-today')" class="filter-button">
                                 📅 本日チェックアウト
@@ -889,7 +889,7 @@
                             <i class="fas fa-download mr-2"></i>CSV出力
                         </button>
                         <button onclick="openFutureReservationModal()" class="btn-primary">
-                            <i class="fas fa-plus mr-2"></i>将来予約登録
+                            <i class="fas fa-plus mr-2"></i>予約登録
                         </button>
                     </div>
                 </div>
@@ -980,10 +980,10 @@
                         </form>
                     </div>
 
-                    <!-- 将来予約登録 -->
+                    <!-- 予約登録 -->
                     <div class="bg-white p-6 rounded-xl border border-gray-200">
                         <h3 class="text-xl font-bold mb-4 text-purple-600">
-                            <i class="fas fa-calendar-plus mr-2"></i>将来予約登録
+                            <i class="fas fa-calendar-plus mr-2"></i>予約登録
                         </h3>
                         <form id="futureReservationForm">
                             <div class="space-y-4">
@@ -1022,7 +1022,7 @@
                                     <textarea id="futureNotes" class="form-input" rows="3" placeholder="備考"></textarea>
                                 </div>
                                 <button type="submit" class="btn-primary w-full">
-                                    <i class="fas fa-calendar-plus mr-2"></i>将来予約登録
+                                    <i class="fas fa-calendar-plus mr-2"></i>予約登録
                                 </button>
                             </div>
                         </form>
@@ -1105,11 +1105,11 @@
         </div>
     </div>
 
-    <!-- 将来予約モーダル -->
+    <!-- 予約モーダル -->
     <div id="futureReservationModal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-gray-800">将来予約登録</h3>
+                <h3 class="text-2xl font-bold text-gray-800">予約登録</h3>
                 <button onclick="closeFutureReservationModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
                     <i class="fas fa-times"></i>
                 </button>
@@ -1154,7 +1154,7 @@
                     
                     <div class="flex gap-4 pt-4">
                         <button type="submit" class="btn-primary flex-1">
-                            <i class="fas fa-calendar-plus mr-2"></i>将来予約登録
+                            <i class="fas fa-calendar-plus mr-2"></i>予約登録
                         </button>
                         <button type="button" onclick="closeFutureReservationModal()" class="btn-secondary">
                             <i class="fas fa-times mr-2"></i>キャンセル
@@ -1316,7 +1316,7 @@
                                 notes: ''
                             };
 
-                            // 将来予約アラート（3日以内）
+                            // 予約アラート（3日以内）
             Object.values(futureReservations).forEach(reservation => {
                 if (!reservation.isConverted) {
                     const daysUntil = Math.ceil((new Date(reservation.checkinDate) - new Date()) / (1000 * 60 * 60 * 24));
@@ -1324,7 +1324,7 @@
                         const room = dormitories[reservation.roomId];
                         alerts.push({
                             type: 'future',
-                            title: '将来予約チェックイン間近',
+                            title: '予約チェックイン間近',
                             message: `${room.property} 部屋${room.roomNumber} - ${reservation.residentName} (${daysUntil}日後)`,
                             roomId: reservation.roomId,
                             reservationId: reservation.id
@@ -1408,12 +1408,12 @@
                 if (!reservation.isConverted) {
                     const room = dormitories[reservation.roomId];
                     
-                    // 現在入室中で、チェックアウト日が将来予約のチェックイン日より後の場合
+                    // 現在入室中で、チェックアウト日が予約のチェックイン日より後の場合
                     if (room.status === 'occupied' && room.checkoutDate && 
                         new Date(room.checkoutDate) >= new Date(reservation.checkinDate)) {
                         conflicts.push({
                             roomId: reservation.roomId,
-                            message: `${room.property} 部屋${room.roomNumber} - 現在の宿泊と将来予約が重複`
+                            message: `${room.property} 部屋${room.roomNumber} - 現在の宿泊と予約が重複`
                         });
                     }
                 }
@@ -1423,7 +1423,7 @@
         }
 
         function checkFutureReservationAlerts() {
-            // 将来予約のアラートをチェックして通知
+            // 予約のアラートをチェックして通知
             const today = new Date();
             Object.values(futureReservations).forEach(reservation => {
                 if (!reservation.isConverted) {
@@ -1609,14 +1609,14 @@
                     return;
                 }
                 
-                // 将来予約との競合チェック
+                // 予約との競合チェック
                 const conflict = Object.values(futureReservations).find(reservation => 
                     reservation.roomId === roomId && 
                     !reservation.isConverted &&
                     checkinDate <= reservation.checkinDate
                 );
                 
-                if (conflict && !confirm(`この部屋には${conflict.checkinDate}に将来予約があります。続行しますか？`)) {
+                if (conflict && !confirm(`この部屋には${conflict.checkinDate}に予約があります。続行しますか？`)) {
                     return;
                 }
                 
@@ -1672,7 +1672,7 @@
             showNotification('情報を更新しました', 'success');
         });
 
-        // 将来予約フォーム処理
+        // 予約フォーム処理
         document.getElementById('futureReservationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1704,7 +1704,7 @@
                 }
             }
             
-            // 既存の将来予約との競合チェック
+            // 既存の予約との競合チェック
             const conflictReservation = Object.values(futureReservations).find(reservation => 
                 reservation.roomId === roomId && 
                 !reservation.isConverted &&
@@ -1712,7 +1712,7 @@
             );
             
             if (conflictReservation) {
-                showNotification('同じ日に既に将来予約があります', 'error');
+                showNotification('同じ日に既に予約があります', 'error');
                 return;
             }
             
@@ -1730,17 +1730,17 @@
                 isConverted: false
             };
             
-            addActivityLog(roomId, 'future-reserve', staff, `将来予約登録: ${residentName} (${checkinDate})`);
+            addActivityLog(roomId, 'future-reserve', staff, `予約登録: ${residentName} (${checkinDate})`);
             saveData();
             updateStatistics();
             renderRooms();
             renderFutureReservationsList();
             
             this.reset();
-            showNotification('将来予約を登録しました', 'success');
+            showNotification('予約を登録しました', 'success');
         });
 
-        // モーダル将来予約フォーム処理
+        // モーダル予約フォーム処理
         document.getElementById('modalFutureReservationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -1776,8 +1776,8 @@
                 reservation.notes = notes;
                 reservation.updatedAt = new Date().toISOString();
                 
-                addActivityLog(roomId, 'update-future', staff, `将来予約更新: ${residentName}`);
-                showNotification('将来予約を更新しました', 'success');
+                addActivityLog(roomId, 'update-future', staff, `予約更新: ${residentName}`);
+                showNotification('予約を更新しました', 'success');
             } else {
                 // 新規登録
                 const reservationId = `future_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -1794,8 +1794,8 @@
                     isConverted: false
                 };
                 
-                addActivityLog(roomId, 'future-reserve', staff, `将来予約登録: ${residentName} (${checkinDate})`);
-                showNotification('将来予約を登録しました', 'success');
+                addActivityLog(roomId, 'future-reserve', staff, `予約登録: ${residentName} (${checkinDate})`);
+                showNotification('予約を登録しました', 'success');
             }
             
             saveData();
@@ -1815,10 +1815,10 @@
             
             const room = dormitories[roomId];
             
-            // 将来予約があるかチェック
+            // 予約があるかチェック
             const futureReservation = getFutureReservationForRoom(roomId);
             if (futureReservation) {
-                if (confirm(`この部屋には将来予約があります。将来予約をチェックインに変換しますか？`)) {
+                if (confirm(`この部屋には予約があります。予約をチェックインに変換しますか？`)) {
                     convertFutureReservation(futureReservation.id);
                     return;
                 }
@@ -1892,8 +1892,8 @@
                 csvContent += row + '\n';
             });
             
-            // 将来予約情報も追加
-            csvContent += '\n将来予約一覧\n';
+            // 予約情報も追加
+            csvContent += '\n予約一覧\n';
             csvContent += '物件,部屋番号,宿泊者名,チェックイン予定日,担当者\n';
             
             Object.values(futureReservations).forEach(reservation => {
@@ -2002,7 +2002,7 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('checkinDate').value = today;
             
-            // 明日の日付を将来予約デフォルトに設定
+            // 明日の日付を予約デフォルトに設定
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('futureCheckinDate').value = tomorrow.toISOString().split('T')[0];
@@ -2010,7 +2010,7 @@
 
         // キーボードショートカット
         document.addEventListener('keydown', function(e) {
-            // Ctrl+N で将来予約モーダル
+            // Ctrl+N で予約モーダル
             if (e.ctrlKey && e.key === 'n') {
                 e.preventDefault();
                 openFutureReservationModal();
@@ -2047,7 +2047,7 @@
         }
 
         function generateSampleFutureReservations() {
-            // サンプル将来予約を生成
+            // サンプル予約を生成
             const roomIds = Object.keys(dormitories);
             for (let i = 0; i < Math.min(5, roomIds.length); i++) {
                 const roomId = roomIds[Math.floor(Math.random() * roomIds.length)];
@@ -2066,7 +2066,7 @@
                         checkoutDate: '',
                         stayAmount: Math.floor(Math.random() * 20000) + 50000,
                         staff: 'サンプル担当者',
-                        notes: 'サンプル将来予約',
+                        notes: 'サンプル予約',
                         createdAt: new Date().toISOString(),
                         isConverted: false
                     };
@@ -2235,7 +2235,7 @@
                     card.classList.add('missing-data');
                 }
                 
-                // 将来予約情報
+                // 予約情報
                 const futureReservationInfo = getFutureReservationForRoom(roomId);
                 
                 let dateWarnings = '';
@@ -2293,7 +2293,7 @@
                                 <div class="future-reservation-card">
                                     <div class="flex items-center text-xs">
                                         <i class="fas fa-calendar-alt mr-2"></i>
-                                        <span>将来予約: ${futureReservationInfo.residentName}</span>
+                                        <span>予約: ${futureReservationInfo.residentName}</span>
                                     </div>
                                     <div class="text-xs mt-1">チェックイン予定: ${futureReservationInfo.checkinDate}</div>
                                 </div>
@@ -2340,7 +2340,7 @@
             });
         }
 
-        // 将来予約関連
+        // 予約関連
         function hasActiveFutureReservation(roomId) {
             return Object.values(futureReservations).some(reservation => 
                 reservation.roomId === roomId && !reservation.isConverted
@@ -2368,7 +2368,7 @@
                 container.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
                         <i class="fas fa-calendar-times text-4xl mb-3"></i>
-                        <p>将来予約はありません</p>
+                        <p>予約はありません</p>
                     </div>
                 `;
                 return;
@@ -2414,7 +2414,7 @@
                 return;
             }
 
-            if (confirm(`${reservation.residentName}さんの将来予約をチェックインに変換しますか？`)) {
+            if (confirm(`${reservation.residentName}さんの予約をチェックインに変換しますか？`)) {
                 // 部屋のステータスを更新
                 room.status = 'occupied';
                 room.residentName = reservation.residentName;
@@ -2425,16 +2425,16 @@
                 room.staff = reservation.staff;
                 room.lastUpdated = new Date().toISOString();
 
-                // 将来予約を変換済みにマーク
+                // 予約を変換済みにマーク
                 reservation.isConverted = true;
                 reservation.convertedAt = new Date().toISOString();
 
-                addActivityLog(reservation.roomId, 'convert-future', reservation.staff, `将来予約からチェックイン変換: ${reservation.residentName}`);
+                addActivityLog(reservation.roomId, 'convert-future', reservation.staff, `予約からチェックイン変換: ${reservation.residentName}`);
                 saveData();
                 updateStatistics();
                 renderRooms();
                 renderFutureReservationsList();
-                showNotification('将来予約をチェックインに変換しました', 'success');
+                showNotification('予約をチェックインに変換しました', 'success');
             }
         }
 
@@ -2547,7 +2547,7 @@
                 };
             }
             
-            // 将来予約をチェック
+            // 予約をチェック
             const futureReservation = Object.values(futureReservations).find(reservation => 
                 reservation.roomId === roomId && 
                 !reservation.isConverted &&
