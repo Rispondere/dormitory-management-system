@@ -660,6 +660,29 @@
                 </div>
             </div>
 
+            <!-- 予定管理セクション -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- 今後の予定一覧 -->
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-calendar-alt mr-2 text-blue-600"></i>今後のチェックアウト予定
+                    </h3>
+                    <div id="upcomingSchedule" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- 動的に生成 -->
+                    </div>
+                </div>
+
+                <!-- 長期滞在者一覧 -->
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-hourglass-half mr-2 text-orange-600"></i>長期滞在者（30日以上）
+                    </h3>
+                    <div id="longTermStays" class="space-y-3 max-h-96 overflow-y-auto">
+                        <!-- 動的に生成 -->
+                    </div>
+                </div>
+            </div>
+
             <!-- フィルター・ソート -->
             <div class="glass-card p-6 mb-8">
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
