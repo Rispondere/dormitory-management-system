@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寮管理システム - 管理者画面</title>
+    <title>寮管理システム - 管理者画面 v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -80,55 +80,6 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         
-        .dark-glass-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .region-tab {
-            padding: 16px 24px;
-            border-radius: 16px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            font-weight: 600;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .region-tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.6s;
-        }
-        
-        .region-tab:hover::before {
-            left: 100%;
-        }
-        
-        .region-tab:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-        }
-        
-        .region-tab.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: #667eea;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-            transform: translateY(-2px);
-        }
-        
         .metric-card {
             background: white;
             border-radius: 20px;
@@ -159,7 +110,7 @@
         .metric-card.revenue { --accent-color: linear-gradient(135deg, #10b981, #059669); }
         .metric-card.attention { --accent-color: linear-gradient(135deg, #ef4444, #dc2626); }
         
-        .region-overview {
+        .property-card {
             background: white;
             border-radius: 20px;
             padding: 1.5rem;
@@ -167,44 +118,50 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            margin-bottom: 1rem;
         }
         
-        .region-overview::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--region-color);
-            opacity: 0.3;
-        }
-        
-        .region-overview:hover {
+        .property-card:hover {
             transform: translateX(4px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
         
-        .region-tokyo { 
-            border-left-color: #3b82f6; 
-            --region-color: #3b82f6;
+        .property-nagoya { border-left-color: #10b981; }
+        .property-yokkaichi { border-left-color: #8b5cf6; }
+        .property-tokyo { border-left-color: #3b82f6; }
+        .property-yokohama { border-left-color: #06b6d4; }
+        .property-fukuoka { border-left-color: #f59e0b; }
+        
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 8px;
+            margin-top: 1rem;
         }
-        .region-yokohama { 
-            border-left-color: #06b6d4; 
-            --region-color: #06b6d4;
+        
+        .room-item {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-        .region-nagoya { 
-            border-left-color: #10b981; 
-            --region-color: #10b981;
+        
+        .room-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
-        .region-yokkaichi { 
-            border-left-color: #8b5cf6; 
-            --region-color: #8b5cf6;
-        }
-        .region-fukuoka { 
-            border-left-color: #f59e0b; 
-            --region-color: #f59e0b;
-        }
+        
+        .room-item.vacant { background: #10b981; }
+        .room-item.occupied { background: #3b82f6; }
+        .room-item.cleaning { background: #f59e0b; }
+        .room-item.maintenance { background: #ef4444; }
+        .room-item.cancelled { background: #6b7280; }
         
         .nav-button {
             background: rgba(255, 255, 255, 0.1);
@@ -227,61 +184,6 @@
         .nav-button.active {
             background: linear-gradient(135deg, #667eea, #764ba2);
             border-color: #667eea;
-        }
-        
-        .spreadsheet-container {
-            background: white;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        .spreadsheet-toolbar {
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-        }
-        
-        .spreadsheet-cell {
-            padding: 16px;
-            border-right: 1px solid #e5e7eb;
-            border-bottom: 1px solid #e5e7eb;
-            transition: all 0.2s ease;
-            min-width: 150px;
-        }
-        
-        .spreadsheet-cell:hover {
-            background-color: #fafbfc;
-        }
-        
-        .spreadsheet-cell input, 
-        .spreadsheet-cell select {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        
-        .spreadsheet-cell input:focus, 
-        .spreadsheet-cell select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-            transform: scale(1.02);
-        }
-        
-        .spreadsheet-header {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            text-align: center;
         }
         
         .btn-primary {
@@ -332,6 +234,50 @@
             border-color: #667eea;
             background: #f8fafc;
             transform: translateY(-2px);
+        }
+        
+        .table-container {
+            max-height: 70vh;
+            overflow: auto;
+            background: white;
+            border-radius: 20px;
+        }
+        
+        .table-cell {
+            padding: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .table-cell:hover {
+            background-color: #fafbfc;
+        }
+        
+        .table-cell input, 
+        .table-cell select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .table-cell input:focus, 
+        .table-cell select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-align: center;
         }
         
         .floating-actions {
@@ -405,9 +351,9 @@
             background: white;
             border-radius: 24px;
             padding: 2rem;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
+            max-width: 800px;
+            width: 95%;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -423,17 +369,25 @@
             to { transform: scale(1); opacity: 1; }
         }
         
-        .table-container {
-            max-height: 70vh;
-            overflow: auto;
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
         
-        .sticky-column {
-            position: sticky;
-            left: 0;
-            background: white;
-            z-index: 5;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
         
         .chart-container {
@@ -441,106 +395,6 @@
             height: 320px;
             margin: 1rem 0;
         }
-        
-        .overview-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        @media (max-width: 768px) {
-            .overview-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .floating-actions {
-                bottom: 1rem;
-                right: 1rem;
-            }
-            
-            .floating-btn {
-                width: 56px;
-                height: 56px;
-                font-size: 18px;
-            }
-            
-            .spreadsheet-toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .region-tab {
-                padding: 12px 16px;
-                margin: 4px;
-            }
-        }
-        
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 6px solid #f3f4f6;
-            border-top: 6px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .activity-item {
-            background: white;
-            border-radius: 16px;
-            padding: 1rem;
-            border-left: 4px solid #667eea;
-            transition: all 0.3s ease;
-            margin-bottom: 0.5rem;
-        }
-        
-        .activity-item:hover {
-            transform: translateX(4px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        }
-        
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        
-        .status-indicator.vacant { background: #10b981; }
-        .status-indicator.occupied { background: #3b82f6; }
-        .status-indicator.cleaning { background: #f59e0b; }
-        .status-indicator.maintenance { background: #ef4444; }
         
         .login-input {
             width: 100%;
@@ -577,6 +431,107 @@
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f4f6;
+            border-top: 6px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .payment-row {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .payment-row:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .payment-row.paid { border-left-color: #10b981; }
+        .payment-row.pending { border-left-color: #f59e0b; }
+        .payment-row.overdue { border-left-color: #ef4444; }
+        
+        .occupancy-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        
+        .occupancy-bar {
+            flex: 1;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .occupancy-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+        
+        .occupancy-text {
+            font-weight: 600;
+            font-size: 14px;
+            min-width: 50px;
+            text-align: right;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .floating-actions {
+                bottom: 1rem;
+                right: 1rem;
+            }
+            
+            .floating-btn {
+                width: 56px;
+                height: 56px;
+                font-size: 18px;
+            }
+            
+            .room-grid {
+                grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+                gap: 4px;
+            }
+            
+            .room-item {
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -619,23 +574,23 @@
                 <div class="flex flex-col lg:flex-row justify-between items-center">
                     <div class="text-center lg:text-left mb-6 lg:mb-0">
                         <h1 class="text-4xl font-black mb-3 drop-shadow-lg">
-                            👑 寮管理システム - 管理者画面
+                            👑 寮管理システム v2.0 - 管理者画面
                         </h1>
-                        <p class="text-xl text-white/90 drop-shadow">全地域統合管理 | 川満さん専用ダッシュボード</p>
+                        <p class="text-xl text-white/90 drop-shadow">チェックイン・アウト管理 | 稼働率一覧 | 入金管理 | Excel出力</p>
                     </div>
                     
                     <div class="flex flex-wrap items-center gap-3">
-                        <button onclick="showSection('overview')" class="nav-button">
-                            <i class="fas fa-chart-pie mr-2"></i>概要
+                        <button onclick="showSection('overview')" class="nav-button active">
+                            <i class="fas fa-chart-pie mr-2"></i>概要・稼働率
+                        </button>
+                        <button onclick="showSection('payments')" class="nav-button">
+                            <i class="fas fa-yen-sign mr-2"></i>入金管理
                         </button>
                         <button onclick="showSection('spreadsheet')" class="nav-button">
-                            <i class="fas fa-table mr-2"></i>スプレッドシート
+                            <i class="fas fa-table mr-2"></i>データ管理
                         </button>
                         <button onclick="showSection('analytics')" class="nav-button">
                             <i class="fas fa-chart-bar mr-2"></i>分析
-                        </button>
-                        <button onclick="showSection('logs')" class="nav-button">
-                            <i class="fas fa-history mr-2"></i>ログ
                         </button>
                         <button onclick="logout()" class="btn-secondary">
                             <i class="fas fa-sign-out-alt mr-2"></i>ログアウト
@@ -645,37 +600,15 @@
                         </a>
                     </div>
                 </div>
-                
-                <!-- 地域タブ -->
-                <div class="flex flex-wrap gap-3 mt-8" id="regionTabs">
-                    <div class="region-tab active" onclick="selectRegion('all')">
-                        <i class="fas fa-globe mr-2"></i>全地域
-                    </div>
-                    <div class="region-tab" onclick="selectRegion('tokyo')">
-                        🗼 東京
-                    </div>
-                    <div class="region-tab" onclick="selectRegion('yokohama')">
-                        ⚓ 横浜
-                    </div>
-                    <div class="region-tab" onclick="selectRegion('nagoya')">
-                        🏭 名古屋
-                    </div>
-                    <div class="region-tab" onclick="selectRegion('yokkaichi')">
-                        🏭 四日市
-                    </div>
-                    <div class="region-tab" onclick="selectRegion('fukuoka')">
-                        🌸 福岡
-                    </div>
-                </div>
             </div>
         </header>
 
         <!-- メインコンテンツ -->
         <div class="container mx-auto px-6 py-8">
-            <!-- 概要セクション -->
+            <!-- 概要・稼働率セクション -->
             <div id="overview" class="section">
                 <!-- 全体統計 -->
-                <div class="stats-grid">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="metric-card total">
                         <div class="flex items-center justify-between">
                             <div>
@@ -683,22 +616,18 @@
                                 <p class="text-4xl font-black text-gray-900 mt-2" id="totalRooms">0</p>
                                 <p class="text-sm text-gray-500 mt-1">全地域合計</p>
                             </div>
-                            <div class="text-purple-600 text-5xl">
-                                🏢
-                            </div>
+                            <div class="text-purple-600 text-5xl">🏢</div>
                         </div>
                     </div>
                     
                     <div class="metric-card occupancy">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">稼働率</p>
+                                <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">全体稼働率</p>
                                 <p class="text-4xl font-black text-blue-600 mt-2" id="occupancyRate">0%</p>
                                 <p class="text-sm text-gray-500 mt-1">入室中の割合</p>
                             </div>
-                            <div class="text-blue-600 text-5xl">
-                                📈
-                            </div>
+                            <div class="text-blue-600 text-5xl">📈</div>
                         </div>
                     </div>
                     
@@ -709,9 +638,7 @@
                                 <p class="text-4xl font-black text-green-600 mt-2" id="monthlyRevenue">¥0</p>
                                 <p class="text-sm text-gray-500 mt-1">入室中から計算</p>
                             </div>
-                            <div class="text-green-600 text-5xl">
-                                💰
-                            </div>
+                            <div class="text-green-600 text-5xl">💰</div>
                         </div>
                     </div>
                     
@@ -720,67 +647,107 @@
                             <div>
                                 <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">要対応</p>
                                 <p class="text-4xl font-black text-red-600 mt-2" id="attentionNeeded">0</p>
-                                <p class="text-sm text-gray-500 mt-1">清掃・メンテナンス</p>
+                                <p class="text-sm text-gray-500 mt-1">清掃・メンテ・未入力</p>
                             </div>
-                            <div class="text-red-600 text-5xl">
-                                ⚠️
-                            </div>
+                            <div class="text-red-600 text-5xl">⚠️</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 地域別概要 -->
-                <div class="glass-card p-8 mb-8">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">
-                        <i class="fas fa-map-marked-alt mr-3 text-purple-600"></i>地域別パフォーマンス
-                    </h3>
-                    <div class="overview-grid" id="regionOverviews">
-                        <!-- 動的に生成 -->
-                    </div>
-                </div>
-
-                <!-- 今日のアクティビティ -->
+                <!-- 物件別稼働率一覧 -->
                 <div class="glass-card p-8">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">
-                        <i class="fas fa-clock mr-3 text-blue-600"></i>今日のアクティビティ
-                    </h3>
-                    <div id="todayActivities" class="space-y-3">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">
+                            <i class="fas fa-building mr-3 text-purple-600"></i>物件別稼働率一覧
+                        </h3>
+                        <div class="flex gap-2">
+                            <button onclick="exportOccupancyReport()" class="btn-secondary">
+                                <i class="fas fa-file-excel mr-2"></i>稼働率レポート出力
+                            </button>
+                            <button onclick="addNewProperty()" class="btn-primary">
+                                <i class="fas fa-plus mr-2"></i>新物件追加
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="propertyOccupancyList">
                         <!-- 動的に生成 -->
                     </div>
                 </div>
             </div>
 
-            <!-- スプレッドシートセクション -->
+            <!-- 入金管理セクション -->
+            <div id="payments" class="section hidden">
+                <div class="glass-card p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">
+                            <i class="fas fa-yen-sign mr-3 text-green-600"></i>入金状況一覧・管理
+                        </h3>
+                        <div class="flex gap-2">
+                            <button onclick="exportPaymentReport()" class="btn-secondary">
+                                <i class="fas fa-file-excel mr-2"></i>入金レポート出力
+                            </button>
+                            <button onclick="bulkPaymentUpdate()" class="btn-primary">
+                                <i class="fas fa-edit mr-2"></i>一括入金更新
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 入金統計 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="metric-card">
+                            <div class="text-green-600 text-4xl mb-3">✅</div>
+                            <div class="text-2xl font-bold text-green-600" id="paidCount">0</div>
+                            <div class="text-sm text-gray-600">入金済</div>
+                            <div class="text-lg font-bold text-gray-800 mt-1" id="paidAmount">¥0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="text-yellow-600 text-4xl mb-3">⏳</div>
+                            <div class="text-2xl font-bold text-yellow-600" id="pendingCount">0</div>
+                            <div class="text-sm text-gray-600">入金待ち</div>
+                            <div class="text-lg font-bold text-gray-800 mt-1" id="pendingAmount">¥0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="text-red-600 text-4xl mb-3">⚠️</div>
+                            <div class="text-2xl font-bold text-red-600" id="overdueCount">0</div>
+                            <div class="text-sm text-gray-600">入金遅延</div>
+                            <div class="text-lg font-bold text-gray-800 mt-1" id="overdueAmount">¥0</div>
+                        </div>
+                    </div>
+
+                    <!-- 入金一覧 -->
+                    <div id="paymentsList">
+                        <!-- 動的に生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- データ管理セクション -->
             <div id="spreadsheet" class="section hidden">
-                <div class="spreadsheet-container">
+                <div class="glass-card">
                     <!-- ツールバー -->
-                    <div class="spreadsheet-toolbar">
+                    <div class="p-6 border-b border-gray-200">
                         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <div class="flex items-center gap-4">
-                                <h3 class="text-xl font-bold text-gray-800">
-                                    <i class="fas fa-table mr-2 text-purple-600"></i>データ管理スプレッドシート
-                                </h3>
-                                <select id="regionFilter" onchange="filterSpreadsheet()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
-                                    <option value="all">全地域</option>
-                                    <option value="tokyo">🗼 東京</option>
-                                    <option value="yokohama">⚓ 横浜</option>
-                                    <option value="nagoya">🏭 名古屋</option>
-                                    <option value="yokkaichi">🏭 四日市</option>
-                                    <option value="fukuoka">🌸 福岡</option>
-                                </select>
-                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">
+                                <i class="fas fa-table mr-2 text-purple-600"></i>全データ管理スプレッドシート
+                            </h3>
                             
                             <div class="flex flex-wrap gap-3">
-                                <button onclick="validateAllData()" class="btn-secondary inline-flex items-center">
+                                <select id="regionFilter" onchange="filterSpreadsheet()" class="form-input">
+                                    <option value="all">全地域</option>
+                                    <option value="名古屋">🏭 名古屋</option>
+                                    <option value="四日市">🏭 四日市</option>
+                                    <option value="東京">🗼 東京</option>
+                                    <option value="横浜">⚓ 横浜</option>
+                                    <option value="福岡">🌸 福岡</option>
+                                </select>
+                                <button onclick="validateAllData()" class="btn-secondary">
                                     <i class="fas fa-check-circle mr-2"></i>データ検証
                                 </button>
-                                <button onclick="bulkEditMode()" class="btn-secondary inline-flex items-center">
-                                    <i class="fas fa-edit mr-2"></i>一括編集
+                                <button onclick="exportFullData()" class="btn-primary">
+                                    <i class="fas fa-file-excel mr-2"></i>全データ出力
                                 </button>
-                                <button onclick="exportToExcel('current')" class="btn-primary inline-flex items-center">
-                                    <i class="fas fa-file-excel mr-2"></i>Excel出力
-                                </button>
-                                <button onclick="saveAllChanges()" class="btn-primary inline-flex items-center">
+                                <button onclick="saveAllChanges()" class="btn-primary">
                                     <i class="fas fa-save mr-2"></i>保存
                                 </button>
                             </div>
@@ -791,19 +758,20 @@
                     <div class="table-container">
                         <table class="w-full text-sm">
                             <thead>
-                                <tr class="spreadsheet-header">
-                                    <th class="sticky-column spreadsheet-cell">地域</th>
-                                    <th class="sticky-column spreadsheet-cell">店舗</th>
-                                    <th class="sticky-column spreadsheet-cell">寮番号</th>
-                                    <th class="spreadsheet-cell">ステータス</th>
-                                    <th class="spreadsheet-cell">最終更新</th>
-                                    <th class="spreadsheet-cell">担当者</th>
-                                    <th class="spreadsheet-cell">備考</th>
-                                    <th class="spreadsheet-cell">入室日</th>
-                                    <th class="spreadsheet-cell">予定退室日</th>
-                                    <th class="spreadsheet-cell">月額料金</th>
-                                    <th class="spreadsheet-cell">支払状況</th>
-                                    <th class="spreadsheet-cell">操作</th>
+                                <tr class="table-header">
+                                    <th class="table-cell">地域</th>
+                                    <th class="table-cell">店舗</th>
+                                    <th class="table-cell">物件</th>
+                                    <th class="table-cell">部屋</th>
+                                    <th class="table-cell">ステータス</th>
+                                    <th class="table-cell">宿泊者名</th>
+                                    <th class="table-cell">チェックイン</th>
+                                    <th class="table-cell">チェックアウト</th>
+                                    <th class="table-cell">宿泊料金</th>
+                                    <th class="table-cell">入金状況</th>
+                                    <th class="table-cell">入金額</th>
+                                    <th class="table-cell">備考</th>
+                                    <th class="table-cell">操作</th>
                                 </tr>
                             </thead>
                             <tbody id="spreadsheetBody">
@@ -827,30 +795,30 @@
                         </div>
                     </div>
 
-                    <!-- 月次推移 -->
+                    <!-- 入金状況 -->
                     <div class="glass-card p-6">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">
-                            <i class="fas fa-chart-line mr-2 text-blue-600"></i>稼働率推移
+                            <i class="fas fa-chart-bar mr-2 text-green-600"></i>入金状況分析
                         </h3>
                         <div class="chart-container">
-                            <canvas id="trendChart"></canvas>
+                            <canvas id="paymentChart"></canvas>
                         </div>
                     </div>
 
                     <!-- ステータス分布 -->
                     <div class="glass-card p-6">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">
-                            <i class="fas fa-chart-bar mr-2 text-green-600"></i>ステータス分布
+                            <i class="fas fa-chart-bar mr-2 text-blue-600"></i>ステータス分布
                         </h3>
                         <div class="chart-container">
                             <canvas id="statusChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- 売上分析 -->
+                    <!-- 売上推移 -->
                     <div class="glass-card p-6">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">
-                            <i class="fas fa-money-bill-wave mr-2 text-yellow-600"></i>地域別売上分析
+                            <i class="fas fa-chart-line mr-2 text-yellow-600"></i>売上推移予測
                         </h3>
                         <div class="chart-container">
                             <canvas id="revenueChart"></canvas>
@@ -858,124 +826,137 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- ログセクション -->
-            <div id="logs" class="section hidden">
-                <div class="glass-card">
-                    <!-- ログツールバー -->
-                    <div class="spreadsheet-toolbar">
-                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                            <h3 class="text-xl font-bold text-gray-800">
-                                <i class="fas fa-history mr-2 text-green-600"></i>活動ログ履歴
-                            </h3>
-                            <div class="flex items-center gap-3">
-                                <select id="logRegionFilter" onchange="filterLogs()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium">
-                                    <option value="all">全地域</option>
-                                    <option value="tokyo">🗼 東京</option>
-                                    <option value="yokohama">⚓ 横浜</option>
-                                    <option value="nagoya">🏭 名古屋</option>
-                                    <option value="yokkaichi">🏭 四日市</option>
-                                    <option value="fukuoka">🌸 福岡</option>
+        <!-- 新物件追加モーダル -->
+        <div id="newPropertyModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">新物件追加</h3>
+                    <button onclick="closeNewPropertyModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form id="newPropertyForm">
+                    <div class="space-y-4">
+                        <div class="form-grid">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">地域 <span class="text-red-500">*</span></label>
+                                <select id="newPropertyRegion" class="form-input" required>
+                                    <option value="">選択してください</option>
+                                    <option value="名古屋">🏭 名古屋</option>
+                                    <option value="四日市">🏭 四日市</option>
+                                    <option value="東京">🗼 東京</option>
+                                    <option value="横浜">⚓ 横浜</option>
+                                    <option value="福岡">🌸 福岡</option>
                                 </select>
-                                <select id="logPeriodFilter" onchange="filterLogs()" class="px-4 py-2 border-2 border-gray-200 rounded-lg text-sm font-medium">
-                                    <option value="all">全期間</option>
-                                    <option value="today">今日</option>
-                                    <option value="week">今週</option>
-                                    <option value="month">今月</option>
-                                </select>
-                                <button onclick="exportToExcel('logs')" class="btn-primary inline-flex items-center">
-                                    <i class="fas fa-file-excel mr-2"></i>ログ出力
-                                </button>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">店舗名 <span class="text-red-500">*</span></label>
+                                <input type="text" id="newPropertyStore" class="form-input" placeholder="店舗名" required>
                             </div>
                         </div>
+                        <div class="form-grid">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">物件名 <span class="text-red-500">*</span></label>
+                                <input type="text" id="newPropertyName" class="form-input" placeholder="物件名" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">基本料金</label>
+                                <input type="number" id="newPropertyPrice" class="form-input" placeholder="基本料金">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">部屋番号（カンマ区切り） <span class="text-red-500">*</span></label>
+                            <textarea id="newPropertyRooms" class="form-input" rows="3" placeholder="例: 101,102,103,201,202,203" required></textarea>
+                            <p class="text-sm text-gray-500 mt-1">部屋番号をカンマで区切って入力してください</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">備考</label>
+                            <textarea id="newPropertyNotes" class="form-input" rows="2" placeholder="物件の特記事項など"></textarea>
+                        </div>
                     </div>
-
-                    <!-- ログテーブル -->
-                    <div class="table-container">
-                        <table class="w-full text-sm">
-                            <thead class="spreadsheet-header">
-                                <tr>
-                                    <th class="spreadsheet-cell">日時</th>
-                                    <th class="spreadsheet-cell">地域</th>
-                                    <th class="spreadsheet-cell">店舗</th>
-                                    <th class="spreadsheet-cell">寮番号</th>
-                                    <th class="spreadsheet-cell">操作</th>
-                                    <th class="spreadsheet-cell">担当者</th>
-                                    <th class="spreadsheet-cell">備考</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logsTableBody">
-                                <!-- 動的に生成 -->
-                            </tbody>
-                        </table>
+                    
+                    <div class="flex gap-4 mt-8">
+                        <button type="submit" class="btn-primary flex-1">
+                            <i class="fas fa-plus mr-2"></i>物件を追加
+                        </button>
+                        <button type="button" onclick="closeNewPropertyModal()" class="btn-secondary">
+                            <i class="fas fa-times mr-2"></i>キャンセル
+                        </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
 
-        <!-- 一括編集モーダル -->
-        <div id="bulkEditModal" class="modal-overlay hidden">
+        <!-- 一括入金更新モーダル -->
+        <div id="bulkPaymentModal" class="modal-overlay hidden">
             <div class="modal-content">
-                <h3 class="text-2xl font-bold mb-6 text-gray-800">
-                    <i class="fas fa-edit mr-3 text-purple-600"></i>一括編集
-                </h3>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">一括入金更新</h3>
+                    <button onclick="closeBulkPaymentModal()" class="text-gray-400 hover:text-gray-600 text-2xl">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
                 
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-3">対象地域</label>
-                        <select id="bulkRegion" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
-                            <option value="">地域を選択</option>
-                            <option value="tokyo">🗼 東京</option>
-                            <option value="yokohama">⚓ 横浜</option>
-                            <option value="nagoya">🏭 名古屋</option>
-                            <option value="yokkaichi">🏭 四日市</option>
-                            <option value="fukuoka">🌸 福岡</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-3">対象寮</label>
-                        <div class="grid grid-cols-4 gap-3 max-h-40 overflow-y-auto border-2 border-gray-200 rounded-lg p-4" id="bulkSelectDorms">
-                            <!-- 動的に生成 -->
+                <form id="bulkPaymentForm">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">対象地域</label>
+                            <select id="bulkPaymentRegion" class="form-input">
+                                <option value="">全地域</option>
+                                <option value="名古屋">🏭 名古屋</option>
+                                <option value="四日市">🏭 四日市</option>
+                                <option value="東京">🗼 東京</option>
+                                <option value="横浜">⚓ 横浜</option>
+                                <option value="福岡">🌸 福岡</option>
+                            </select>
+                        </div>
+                        <div class="form-grid">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">現在のステータス</label>
+                                <select id="bulkPaymentCurrentStatus" class="form-input">
+                                    <option value="">全ステータス</option>
+                                    <option value="pending">入金待ち</option>
+                                    <option value="overdue">入金遅延</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">変更後ステータス <span class="text-red-500">*</span></label>
+                                <select id="bulkPaymentNewStatus" class="form-input" required>
+                                    <option value="">選択してください</option>
+                                    <option value="paid">入金済</option>
+                                    <option value="pending">入金待ち</option>
+                                    <option value="overdue">入金遅延</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">入金日</label>
+                            <input type="date" id="bulkPaymentDate" class="form-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">備考</label>
+                            <textarea id="bulkPaymentNotes" class="form-input" rows="3" placeholder="一括更新の理由など"></textarea>
                         </div>
                     </div>
                     
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-3">変更するステータス</label>
-                        <select id="bulkStatus" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200">
-                            <option value="">選択してください</option>
-                            <option value="vacant">🚪 空室</option>
-                            <option value="occupied">🏠 入室中</option>
-                            <option value="cleaning">🧹 清掃中</option>
-                            <option value="maintenance">🔧 メンテナンス</option>
-                        </select>
+                    <div class="flex gap-4 mt-8">
+                        <button type="submit" class="btn-primary flex-1">
+                            <i class="fas fa-edit mr-2"></i>一括更新実行
+                        </button>
+                        <button type="button" onclick="closeBulkPaymentModal()" class="btn-secondary">
+                            <i class="fas fa-times mr-2"></i>キャンセル
+                        </button>
                     </div>
-                    
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-3">担当者</label>
-                        <input type="text" id="bulkStaff" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" placeholder="担当者名">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-3">備考</label>
-                        <textarea id="bulkNotes" class="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200" rows="3" placeholder="一括変更の理由や備考"></textarea>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end gap-4 mt-8">
-                    <button onclick="closeBulkEditModal()" class="btn-secondary">
-                        キャンセル
-                    </button>
-                    <button onclick="executeBulkEdit()" class="btn-primary">
-                        一括変更実行
-                    </button>
-                </div>
+                </form>
             </div>
         </div>
 
         <!-- フローティングアクション -->
         <div class="floating-actions">
-            <button class="floating-btn" onclick="quickExport()" title="クイック出力">
+            <button class="floating-btn" onclick="exportFullData()" title="全データ出力">
                 <i class="fas fa-download"></i>
             </button>
             <button class="floating-btn" onclick="showSection('overview')" title="概要に戻る">
@@ -994,7 +975,6 @@
 
     <script>
         // グローバル変数
-        let currentRegionFilter = 'all';
         let allDormitories = {};
         let allLogs = [];
         let charts = {};
@@ -1002,11 +982,71 @@
 
         // 地域データ
         const regions = {
-            tokyo: { name: '東京エリア', icon: '🗼', price: 68000, color: '#3b82f6' },
-            yokohama: { name: '横浜エリア', icon: '⚓', price: 62000, color: '#06b6d4' },
-            nagoya: { name: '名古屋エリア', icon: '🏭', price: 55000, color: '#10b981' },
-            yokkaichi: { name: '四日市エリア', icon: '🏭', price: 48000, color: '#8b5cf6' },
-            fukuoka: { name: '福岡エリア', icon: '🌸', price: 52000, color: '#f59e0b' }
+            '名古屋': { name: '名古屋エリア', icon: '🏭', color: '#10b981' },
+            '四日市': { name: '四日市エリア', icon: '🏭', color: '#8b5cf6' },
+            '東京': { name: '東京エリア', icon: '🗼', color: '#3b82f6' },
+            '横浜': { name: '横浜エリア', icon: '⚓', color: '#06b6d4' },
+            '福岡': { name: '福岡エリア', icon: '🌸', color: '#f59e0b' }
+        };
+
+        // 実際の寮データ
+        const realRoomsData = {
+            "名古屋": {
+                "シャブール": {
+                    "プロビデンス栄": [201, 206, 602, 701, 703, 801, 803],
+                    "カーサ桜": [201, 502],
+                    "プロビデンスサーリ2": [701],
+                    "ブルームライフ新栄": [303],
+                    "レスパス千種": [201],
+                    "プロビデンス東新町": [402],
+                    "グラシオン": [202]
+                },
+                "ワンカラット": {
+                    "プロビデンス東新町": [202],
+                    "プロビデンス栄": [401, 403, 606, 806],
+                    "セレザ錦": [302, 304]
+                },
+                "GO名古屋": {
+                    "プロビデンス栄": [501, 706],
+                    "レスパス千種": [206, 605, 1102]
+                },
+                "CL名古屋": {
+                    "レスパス千種": [706, 1003]
+                }
+            },
+            "四日市": {
+                "CL四日市": {
+                    "大晃マンション": [302],
+                    "グランデューク": [606, 1001],
+                    "西浦マンション": ["1F"],
+                    "Hi-own": [801]
+                }
+            },
+            "東京": {
+                "CL東京": {
+                    "ヴェルト錦糸町": [404],
+                    "サンロック": [402],
+                    "ひびき錦糸町門田ビル": [203]
+                },
+                "GO東京": {
+                    "狸穴": [209, 310],
+                    "マーク": [704]
+                }
+            },
+            "横浜": {
+                "GO横浜": {
+                    "レア横濱サイドアベニュー": [301, 1001],
+                    "SS.Advance横濱末吉町": [1003],
+                    "ライオンズマンション": [1003]
+                }
+            },
+            "福岡": {
+                "GO福岡": {
+                    "ルネッサンス21": [407, 502],
+                    "キララ天神南": [502],
+                    "ローズモント": [801]
+                }
+            }
         };
 
         // ログイン処理
@@ -1021,7 +1061,7 @@
                 loadAllData();
                 updateOverview();
                 showSection('overview');
-                showNotification('ログインしました', 'success');
+                showNotification('管理者としてログインしました', 'success');
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
                 document.getElementById('passwordInput').value = '';
@@ -1053,8 +1093,8 @@
             allLogs = [];
 
             Object.keys(regions).forEach(regionId => {
-                const storageKey = `dormitories_${regionId}`;
-                const logsKey = `activityLogs_${regionId}`;
+                const storageKey = `dormitories_${regionId}_v2`;
+                const logsKey = `activityLogs_${regionId}_v2`;
                 
                 const savedDormitories = localStorage.getItem(storageKey);
                 const savedLogs = localStorage.getItem(logsKey);
@@ -1064,12 +1104,6 @@
                     Object.keys(regionDorms).forEach(key => {
                         const dorm = regionDorms[key];
                         dorm.region = regionId;
-                        dorm.price = regions[regionId].price;
-                        if (!dorm.paymentStatus) dorm.paymentStatus = 'paid';
-                        if (!dorm.cleaningStatus) dorm.cleaningStatus = 'clean';
-                        if (!dorm.checkinDate) dorm.checkinDate = '';
-                        if (!dorm.expectedCheckout) dorm.expectedCheckout = '';
-                        
                         allDormitories[`${regionId}_${key}`] = dorm;
                     });
                 } else {
@@ -1090,39 +1124,65 @@
         }
 
         function initializeRegionData(regionId) {
-            // 地域データを初期化（実装は元のコードと同じ）
-            for (let i = 1; i <= 20; i++) {
-                const dorm = {
-                    number: i,
-                    region: regionId,
-                    store: 'テスト店舗',
-                    property: 'テスト物件',
-                    roomNumber: i,
-                    status: getRandomStatus(),
-                    lastUpdated: new Date().toISOString(),
-                    staff: '',
-                    notes: '',
-                    price: regions[regionId].price,
-                    paymentStatus: Math.random() > 0.1 ? 'paid' : 'pending',
-                    cleaningStatus: Math.random() > 0.2 ? 'clean' : 'dirty',
-                    checkinDate: '',
-                    expectedCheckout: ''
-                };
+            if (realRoomsData[regionId]) {
+                const stores = realRoomsData[regionId];
                 
-                if (dorm.status === 'occupied') {
-                    dorm.checkinDate = new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                    dorm.expectedCheckout = new Date(Date.now() + Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-                }
-                
-                allDormitories[`${regionId}_${i}`] = dorm;
+                Object.keys(stores).forEach(store => {
+                    const properties = stores[store];
+                    
+                    Object.keys(properties).forEach(property => {
+                        const rooms = properties[property];
+                        rooms.forEach(roomNumber => {
+                            const roomId = `${regionId}_${store}_${property}_${roomNumber}`;
+                            allDormitories[roomId] = {
+                                region: regionId,
+                                store: store,
+                                property: property,
+                                roomNumber: roomNumber,
+                                status: getRandomStatus(),
+                                residentName: '',
+                                checkinDate: '',
+                                checkoutDate: '',
+                                stayAmount: Math.floor(Math.random() * 20000) + 50000,
+                                paymentStatus: getRandomPaymentStatus(),
+                                paymentAmount: 0,
+                                paymentDate: '',
+                                lastUpdated: new Date().toISOString(),
+                                staff: '',
+                                notes: ''
+                            };
+
+                            // 入室中の場合はチェックイン日を設定
+                            if (allDormitories[roomId].status === 'occupied') {
+                                const checkinDays = Math.floor(Math.random() * 30);
+                                const checkinDate = new Date();
+                                checkinDate.setDate(checkinDate.getDate() - checkinDays);
+                                allDormitories[roomId].checkinDate = checkinDate.toISOString().split('T')[0];
+                                
+                                const checkoutDays = Math.floor(Math.random() * 60) + 1;
+                                const checkoutDate = new Date();
+                                checkoutDate.setDate(checkoutDate.getDate() + checkoutDays);
+                                allDormitories[roomId].checkoutDate = checkoutDate.toISOString().split('T')[0];
+                                
+                                allDormitories[roomId].residentName = generateRandomName();
+                            }
+                        });
+                    });
+                });
             }
             
             saveRegionData(regionId);
         }
 
+        function generateRandomName() {
+            const surnames = ['田中', '佐藤', '鈴木', '高橋', '渡辺', '山田', '中村', '小林', '加藤', '吉田'];
+            const names = ['太郎', '花子', '次郎', '美咲', '健太', '由美', '翔太', '愛', '大輔', '恵'];
+            return surnames[Math.floor(Math.random() * surnames.length)] + names[Math.floor(Math.random() * names.length)];
+        }
+
         function getRandomStatus() {
             const statuses = ['vacant', 'occupied', 'cleaning', 'maintenance'];
-            const weights = [0.3, 0.5, 0.15, 0.05];
+            const weights = [0.2, 0.6, 0.15, 0.05];
             
             const random = Math.random();
             let cumulative = 0;
@@ -1136,9 +1196,24 @@
             return 'vacant';
         }
 
+        function getRandomPaymentStatus() {
+            const statuses = ['paid', 'pending', 'overdue'];
+            const weights = [0.7, 0.2, 0.1];
+            
+            const random = Math.random();
+            let cumulative = 0;
+            
+            for (let i = 0; i < statuses.length; i++) {
+                cumulative += weights[i];
+                if (random < cumulative) {
+                    return statuses[i];
+                }
+            }
+            return 'paid';
+        }
+
         function saveRegionData(regionId) {
             const regionDorms = {};
-            const regionLogs = [];
             
             Object.keys(allDormitories).forEach(key => {
                 const dorm = allDormitories[key];
@@ -1148,14 +1223,7 @@
                 }
             });
             
-            allLogs.forEach(log => {
-                if (log.region === regionId) {
-                    regionLogs.push(log);
-                }
-            });
-            
-            localStorage.setItem(`dormitories_${regionId}`, JSON.stringify(regionDorms));
-            localStorage.setItem(`activityLogs_${regionId}`, JSON.stringify(regionLogs));
+            localStorage.setItem(`dormitories_${regionId}_v2`, JSON.stringify(regionDorms));
         }
 
         // ローディング表示
@@ -1184,206 +1252,243 @@
 
             if (sectionId === 'overview') {
                 updateOverview();
+                renderPropertyOccupancy();
+            } else if (sectionId === 'payments') {
+                renderPaymentsManagement();
             } else if (sectionId === 'spreadsheet') {
                 renderSpreadsheet();
             } else if (sectionId === 'analytics') {
                 renderCharts();
-            } else if (sectionId === 'logs') {
-                renderLogs();
             }
-        }
-
-        // 地域フィルター
-        function selectRegion(regionId) {
-            currentRegionFilter = regionId;
-            
-            document.querySelectorAll('.region-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            const currentSection = document.querySelector('.section:not(.hidden)').id;
-            showSection(currentSection);
         }
 
         // 概要更新
         function updateOverview() {
             if (!isAuthenticated) return;
             
-            const filteredDorms = getFilteredDormitories();
-            const stats = calculateStatistics(filteredDorms);
+            const allRooms = Object.values(allDormitories);
+            const stats = calculateStatistics(allRooms);
             
-            document.getElementById('totalRooms').textContent = filteredDorms.length;
-            document.getElementById('occupancyRate').textContent = `${Math.round((stats.occupied / filteredDorms.length) * 100)}%`;
-            document.getElementById('monthlyRevenue').textContent = `¥${(stats.occupied * getAveragePrice()).toLocaleString()}`;
-            document.getElementById('attentionNeeded').textContent = stats.cleaning + stats.maintenance;
+            document.getElementById('totalRooms').textContent = allRooms.length;
+            document.getElementById('occupancyRate').textContent = `${Math.round((stats.occupied / allRooms.length) * 100)}%`;
             
-            renderRegionOverviews();
-            renderTodayActivities();
-        }
-
-        function getFilteredDormitories() {
-            if (currentRegionFilter === 'all') {
-                return Object.values(allDormitories);
-            }
-            return Object.values(allDormitories).filter(dorm => dorm.region === currentRegionFilter);
+            const totalRevenue = allRooms.filter(room => room.status === 'occupied')
+                .reduce((sum, room) => sum + (room.stayAmount || 0), 0);
+            document.getElementById('monthlyRevenue').textContent = `¥${totalRevenue.toLocaleString()}`;
+            
+            const attentionNeeded = stats.cleaning + stats.maintenance + countMissingData();
+            document.getElementById('attentionNeeded').textContent = attentionNeeded;
         }
 
         function calculateStatistics(dormitories) {
-            const stats = { vacant: 0, occupied: 0, cleaning: 0, maintenance: 0 };
+            const stats = { vacant: 0, occupied: 0, cleaning: 0, maintenance: 0, cancelled: 0 };
             dormitories.forEach(dorm => {
                 stats[dorm.status]++;
             });
             return stats;
         }
 
-        function getAveragePrice() {
-            const prices = Object.values(regions).map(r => r.price);
-            return prices.reduce((sum, price) => sum + price, 0) / prices.length;
+        function countMissingData() {
+            return Object.values(allDormitories).filter(room => {
+                if (room.status === 'occupied') {
+                    return !room.residentName || !room.checkinDate;
+                }
+                return false;
+            }).length;
         }
 
-        function renderRegionOverviews() {
-            const container = document.getElementById('regionOverviews');
-            container.innerHTML = '';
+        // 物件別稼働率表示
+        function renderPropertyOccupancy() {
+            const container = document.getElementById('propertyOccupancyList');
+            const propertyMap = {};
 
-            Object.keys(regions).forEach(regionId => {
-                const regionDorms = Object.values(allDormitories).filter(dorm => dorm.region === regionId);
-                const stats = calculateStatistics(regionDorms);
-                const occupancyRate = regionDorms.length > 0 ? Math.round((stats.occupied / regionDorms.length) * 100) : 0;
+            // 物件ごとにグループ化
+            Object.values(allDormitories).forEach(room => {
+                const key = `${room.region}_${room.property}`;
+                if (!propertyMap[key]) {
+                    propertyMap[key] = {
+                        region: room.region,
+                        store: room.store,
+                        property: room.property,
+                        rooms: []
+                    };
+                }
+                propertyMap[key].rooms.push(room);
+            });
+
+            container.innerHTML = Object.entries(propertyMap).map(([key, data]) => {
+                const occupied = data.rooms.filter(room => room.status === 'occupied').length;
+                const occupancyRate = Math.round((occupied / data.rooms.length) * 100);
                 
-                const card = document.createElement('div');
-                card.className = `region-overview region-${regionId}`;
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h4 class="font-bold text-xl text-gray-800">${regions[regionId].icon} ${regions[regionId].name}</h4>
-                            <p class="text-sm text-gray-600 mt-1">${regionDorms.length}室 | 稼働率 ${occupancyRate}%</p>
+                return `
+                    <div class="property-card property-${data.region.replace(/[^a-zA-Z]/g, '').toLowerCase()}">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-xl text-gray-800">${regions[data.region].icon} ${data.property}</h4>
+                                <p class="text-sm text-gray-600 mt-1">${data.region} - ${data.store} | ${data.rooms.length}室</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-black text-blue-600">${occupancyRate}%</div>
+                                <div class="text-xs text-gray-500">稼働率</div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <div class="text-2xl font-black text-green-600">¥${(stats.occupied * regions[regionId].price).toLocaleString()}</div>
-                            <div class="text-xs text-gray-500">月次売上予想</div>
+                        
+                        <div class="occupancy-display">
+                            <div class="occupancy-bar">
+                                <div class="occupancy-fill" style="width: ${occupancyRate}%"></div>
+                            </div>
+                            <div class="occupancy-text">${occupied}/${data.rooms.length}</div>
                         </div>
-                    </div>
-                    <div class="grid grid-cols-4 gap-3 text-center text-sm">
-                        <div class="bg-green-50 p-3 rounded-lg border border-green-200">
-                            <div class="font-bold text-green-700 text-lg">${stats.vacant}</div>
-                            <div class="text-xs text-gray-600">空室</div>
-                        </div>
-                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                            <div class="font-bold text-blue-700 text-lg">${stats.occupied}</div>
-                            <div class="text-xs text-gray-600">入室</div>
-                        </div>
-                        <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                            <div class="font-bold text-yellow-700 text-lg">${stats.cleaning}</div>
-                            <div class="text-xs text-gray-600">清掃</div>
-                        </div>
-                        <div class="bg-red-50 p-3 rounded-lg border border-red-200">
-                            <div class="font-bold text-red-700 text-lg">${stats.maintenance}</div>
-                            <div class="text-xs text-gray-600">メンテ</div>
+                        
+                        <div class="room-grid">
+                            ${data.rooms.map(room => `
+                                <div class="room-item ${room.status}" 
+                                     title="${room.roomNumber} - ${getStatusText(room.status)}" 
+                                     onclick="editRoom('${data.region}_${data.store}_${data.property}_${room.roomNumber}')">
+                                    ${room.roomNumber}
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
                 `;
-                container.appendChild(card);
-            });
+            }).join('');
         }
 
-        function renderTodayActivities() {
-            const today = new Date().toDateString();
-            const todayLogs = allLogs.filter(log => 
-                new Date(log.timestamp).toDateString() === today &&
-                (currentRegionFilter === 'all' || log.region === currentRegionFilter)
-            );
+        // 入金管理表示
+        function renderPaymentsManagement() {
+            const occupiedRooms = Object.values(allDormitories).filter(room => room.status === 'occupied');
             
-            const container = document.getElementById('todayActivities');
-            if (todayLogs.length === 0) {
-                container.innerHTML = '<div class="text-center py-12 text-gray-500"><i class="fas fa-calendar-check text-4xl mb-4"></i><p class="text-lg">今日はまだ活動がありません</p></div>';
-                return;
-            }
-            
-            container.innerHTML = todayLogs.slice(0, 10).map(log => `
-                <div class="activity-item">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-4">
-                            <div class="text-3xl">${regions[log.region].icon}</div>
-                            <div>
-                                <div class="font-semibold text-gray-800">${log.store || '不明'} - 寮${log.roomNumber || log.dormNumber} (${regions[log.region].name})</div>
-                                <div class="text-sm text-gray-600">${getActionText(log.action)} by ${log.staff}</div>
-                                ${log.notes ? `<div class="text-xs text-gray-500 mt-1">${log.notes}</div>` : ''}
+            // 統計計算
+            const paymentStats = {
+                paid: { count: 0, amount: 0 },
+                pending: { count: 0, amount: 0 },
+                overdue: { count: 0, amount: 0 }
+            };
+
+            occupiedRooms.forEach(room => {
+                const status = room.paymentStatus || 'pending';
+                const amount = room.stayAmount || 0;
+                paymentStats[status].count++;
+                paymentStats[status].amount += amount;
+            });
+
+            // 統計表示更新
+            document.getElementById('paidCount').textContent = paymentStats.paid.count;
+            document.getElementById('paidAmount').textContent = `¥${paymentStats.paid.amount.toLocaleString()}`;
+            document.getElementById('pendingCount').textContent = paymentStats.pending.count;
+            document.getElementById('pendingAmount').textContent = `¥${paymentStats.pending.amount.toLocaleString()}`;
+            document.getElementById('overdueCount').textContent = paymentStats.overdue.count;
+            document.getElementById('overdueAmount').textContent = `¥${paymentStats.overdue.amount.toLocaleString()}`;
+
+            // 入金一覧表示
+            const container = document.getElementById('paymentsList');
+            container.innerHTML = occupiedRooms.map(room => {
+                const roomId = `${room.region}_${room.store}_${room.property}_${room.roomNumber}`;
+                return `
+                    <div class="payment-row ${room.paymentStatus || 'pending'}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4">
+                                    <div class="text-lg">${regions[room.region].icon}</div>
+                                    <div>
+                                        <div class="font-bold text-gray-800">${room.property} 部屋${room.roomNumber}</div>
+                                        <div class="text-sm text-gray-600">${room.region} - ${room.store} | ${room.residentName || '宿泊者名未入力'}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <div class="text-right">
+                                    <div class="font-bold text-lg">¥${(room.stayAmount || 0).toLocaleString()}</div>
+                                    <div class="text-sm text-gray-500">
+                                        ${room.checkinDate ? `${room.checkinDate} 〜` : ''}
+                                        ${room.checkoutDate || ''}
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <input type="number" value="${room.stayAmount || ''}" 
+                                           onchange="updateRoomPayment('${roomId}', 'stayAmount', this.value)"
+                                           class="w-24 p-2 border border-gray-300 rounded text-right text-sm">
+                                    <select onchange="updateRoomPayment('${roomId}', 'paymentStatus', this.value)" 
+                                            class="p-2 border border-gray-300 rounded text-sm">
+                                        <option value="paid" ${room.paymentStatus === 'paid' ? 'selected' : ''}>入金済</option>
+                                        <option value="pending" ${room.paymentStatus === 'pending' ? 'selected' : ''}>入金待ち</option>
+                                        <option value="overdue" ${room.paymentStatus === 'overdue' ? 'selected' : ''}>入金遅延</option>
+                                    </select>
+                                    <button onclick="editRoom('${roomId}')" class="btn-secondary p-2">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-sm text-gray-500 font-mono">
-                            ${new Date(log.timestamp).toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'})}
-                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
-        // スプレッドシート描画
+        // スプレッドシート表示
         function renderSpreadsheet() {
             if (!isAuthenticated) return;
             
             const tbody = document.getElementById('spreadsheetBody');
             tbody.innerHTML = '';
             
-            const filteredDorms = getFilteredDormitories();
+            const allRooms = Object.entries(allDormitories);
             
-            filteredDorms.forEach(dorm => {
+            allRooms.forEach(([roomId, room]) => {
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition-colors';
                 row.innerHTML = `
-                    <td class="sticky-column spreadsheet-cell font-semibold">
-                        <div class="flex items-center">
-                            <span class="text-lg mr-2">${regions[dorm.region].icon}</span>
-                            <span>${regions[dorm.region].name}</span>
-                        </div>
-                    </td>
-                    <td class="sticky-column spreadsheet-cell font-medium text-purple-700">${dorm.store || '未設定'}</td>
-                    <td class="sticky-column spreadsheet-cell font-bold text-purple-700">${dorm.property || '未設定'} ${dorm.roomNumber}</td>
-                    <td class="spreadsheet-cell">
-                        <select onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'status', this.value)">
-                            <option value="vacant" ${dorm.status === 'vacant' ? 'selected' : ''}>🚪 空室</option>
-                            <option value="occupied" ${dorm.status === 'occupied' ? 'selected' : ''}>🏠 入室中</option>
-                            <option value="cleaning" ${dorm.status === 'cleaning' ? 'selected' : ''}>🧹 清掃中</option>
-                            <option value="maintenance" ${dorm.status === 'maintenance' ? 'selected' : ''}>🔧 メンテナンス</option>
+                    <td class="table-cell font-semibold">${regions[room.region].icon} ${room.region}</td>
+                    <td class="table-cell">${room.store || '未設定'}</td>
+                    <td class="table-cell font-medium">${room.property || '未設定'}</td>
+                    <td class="table-cell font-bold text-purple-700">${room.roomNumber}</td>
+                    <td class="table-cell">
+                        <select onchange="updateRoomField('${roomId}', 'status', this.value)">
+                            <option value="vacant" ${room.status === 'vacant' ? 'selected' : ''}>空室</option>
+                            <option value="occupied" ${room.status === 'occupied' ? 'selected' : ''}>入室中</option>
+                            <option value="cleaning" ${room.status === 'cleaning' ? 'selected' : ''}>清掃中</option>
+                            <option value="maintenance" ${room.status === 'maintenance' ? 'selected' : ''}>メンテナンス</option>
+                            <option value="cancelled" ${room.status === 'cancelled' ? 'selected' : ''}>キャンセル</option>
                         </select>
                     </td>
-                    <td class="spreadsheet-cell text-gray-600 font-mono text-xs">
-                        ${new Date(dorm.lastUpdated).toLocaleString('ja-JP')}
+                    <td class="table-cell">
+                        <input type="text" value="${room.residentName || ''}" 
+                               onchange="updateRoomField('${roomId}', 'residentName', this.value)"
+                               placeholder="宿泊者名">
                     </td>
-                    <td class="spreadsheet-cell">
-                        <input type="text" value="${dorm.staff || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'staff', this.value)"
-                               placeholder="担当者名">
+                    <td class="table-cell">
+                        <input type="date" value="${room.checkinDate || ''}" 
+                               onchange="updateRoomField('${roomId}', 'checkinDate', this.value)">
                     </td>
-                    <td class="spreadsheet-cell">
-                        <input type="text" value="${dorm.notes || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'notes', this.value)"
+                    <td class="table-cell">
+                        <input type="date" value="${room.checkoutDate || ''}" 
+                               onchange="updateRoomField('${roomId}', 'checkoutDate', this.value)">
+                    </td>
+                    <td class="table-cell">
+                        <input type="number" value="${room.stayAmount || ''}" 
+                               onchange="updateRoomField('${roomId}', 'stayAmount', this.value)"
+                               class="text-right">
+                    </td>
+                    <td class="table-cell">
+                        <select onchange="updateRoomField('${roomId}', 'paymentStatus', this.value)">
+                            <option value="paid" ${room.paymentStatus === 'paid' ? 'selected' : ''}>入金済</option>
+                            <option value="pending" ${room.paymentStatus === 'pending' ? 'selected' : ''}>入金待ち</option>
+                            <option value="overdue" ${room.paymentStatus === 'overdue' ? 'selected' : ''}>入金遅延</option>
+                        </select>
+                    </td>
+                    <td class="table-cell">
+                        <input type="number" value="${room.paymentAmount || ''}" 
+                               onchange="updateRoomField('${roomId}', 'paymentAmount', this.value)"
+                               class="text-right">
+                    </td>
+                    <td class="table-cell">
+                        <input type="text" value="${room.notes || ''}" 
+                               onchange="updateRoomField('${roomId}', 'notes', this.value)"
                                placeholder="備考">
                     </td>
-                    <td class="spreadsheet-cell">
-                        <input type="date" value="${dorm.checkinDate || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'checkinDate', this.value)">
-                    </td>
-                    <td class="spreadsheet-cell">
-                        <input type="date" value="${dorm.expectedCheckout || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'expectedCheckout', this.value)">
-                    </td>
-                    <td class="spreadsheet-cell">
-                        <input type="number" value="${dorm.price || ''}" 
-                               onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'price', this.value)"
-                               class="text-right font-semibold">
-                    </td>
-                    <td class="spreadsheet-cell">
-                        <select onchange="updateDormField('${dorm.region}_${dorm.number || dorm.roomNumber}', 'paymentStatus', this.value)">
-                            <option value="paid" ${dorm.paymentStatus === 'paid' ? 'selected' : ''}>✅ 支払済</option>
-                            <option value="pending" ${dorm.paymentStatus === 'pending' ? 'selected' : ''}>⏳ 未払い</option>
-                            <option value="overdue" ${dorm.paymentStatus === 'overdue' ? 'selected' : ''}>⚠️ 遅延</option>
-                        </select>
-                    </td>
-                    <td class="spreadsheet-cell text-center">
-                        <button onclick="deleteDormData('${dorm.region}_${dorm.number || dorm.roomNumber}')" 
-                                class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded-lg transition-all"
+                    <td class="table-cell text-center">
+                        <button onclick="deleteRoom('${roomId}')" 
+                                class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-all"
                                 title="削除">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -1393,39 +1498,282 @@
             });
         }
 
-        // データ更新
-        function updateDormField(dormKey, field, value) {
+        // データ更新関数
+        function updateRoomField(roomId, field, value) {
             if (!isAuthenticated) return;
             
-            allDormitories[dormKey][field] = value;
-            allDormitories[dormKey].lastUpdated = new Date().toISOString();
+            allDormitories[roomId][field] = field === 'stayAmount' || field === 'paymentAmount' 
+                ? parseInt(value) || 0 
+                : value;
+            allDormitories[roomId].lastUpdated = new Date().toISOString();
             
-            const [region] = dormKey.split('_');
+            const [region] = roomId.split('_');
+            saveRegionData(region);
+            showNotification('データを更新しました', 'success');
             
-            // ログ記録
-            allLogs.unshift({
-                id: allLogs.length + 1,
-                roomNumber: allDormitories[dormKey].roomNumber,
-                action: 'update',
-                field: field,
-                newValue: value,
-                staff: '管理者',
-                timestamp: new Date().toISOString(),
-                notes: `${field}を更新`,
-                region: region,
-                store: allDormitories[dormKey].store
+            // 表示を更新
+            if (document.querySelector('.section:not(.hidden)').id === 'payments') {
+                renderPaymentsManagement();
+            }
+        }
+
+        function updateRoomPayment(roomId, field, value) {
+            updateRoomField(roomId, field, value);
+            renderPaymentsManagement();
+        }
+
+        // Excel出力機能
+        function exportFullData() {
+            if (!isAuthenticated) return;
+            
+            showLoading();
+            
+            setTimeout(() => {
+                const data = Object.values(allDormitories).map(room => ({
+                    '地域': room.region,
+                    '店舗': room.store || '未設定',
+                    '物件': room.property || '未設定',
+                    '部屋番号': room.roomNumber,
+                    'ステータス': getStatusText(room.status),
+                    '宿泊者名': room.residentName || '',
+                    'チェックイン日': room.checkinDate || '',
+                    'チェックアウト日': room.checkoutDate || '',
+                    '宿泊料金': room.stayAmount || 0,
+                    '入金ステータス': getPaymentStatusText(room.paymentStatus),
+                    '入金額': room.paymentAmount || 0,
+                    '最終更新': new Date(room.lastUpdated).toLocaleString('ja-JP'),
+                    '備考': room.notes || ''
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, '全データ');
+                
+                const filename = `寮管理_全データ_${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                
+                hideLoading();
+                showNotification('全データをExcel出力しました', 'success');
+            }, 1000);
+        }
+
+        function exportOccupancyReport() {
+            if (!isAuthenticated) return;
+            
+            showLoading();
+            
+            setTimeout(() => {
+                const propertyMap = {};
+                
+                Object.values(allDormitories).forEach(room => {
+                    const key = `${room.region}_${room.property}`;
+                    if (!propertyMap[key]) {
+                        propertyMap[key] = {
+                            region: room.region,
+                            store: room.store,
+                            property: room.property,
+                            total: 0,
+                            occupied: 0,
+                            vacant: 0,
+                            cleaning: 0,
+                            maintenance: 0
+                        };
+                    }
+                    propertyMap[key].total++;
+                    propertyMap[key][room.status]++;
+                });
+
+                const data = Object.values(propertyMap).map(prop => ({
+                    '地域': prop.region,
+                    '店舗': prop.store,
+                    '物件名': prop.property,
+                    '総室数': prop.total,
+                    '入室中': prop.occupied,
+                    '空室': prop.vacant,
+                    '清掃中': prop.cleaning,
+                    'メンテナンス': prop.maintenance,
+                    '稼働率': `${Math.round((prop.occupied / prop.total) * 100)}%`
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, '稼働率レポート');
+                
+                const filename = `稼働率レポート_${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                
+                hideLoading();
+                showNotification('稼働率レポートをExcel出力しました', 'success');
+            }, 1000);
+        }
+
+        function exportPaymentReport() {
+            if (!isAuthenticated) return;
+            
+            showLoading();
+            
+            setTimeout(() => {
+                const occupiedRooms = Object.values(allDormitories).filter(room => room.status === 'occupied');
+                
+                const data = occupiedRooms.map(room => ({
+                    '地域': room.region,
+                    '店舗': room.store,
+                    '物件': room.property,
+                    '部屋番号': room.roomNumber,
+                    '宿泊者名': room.residentName || '未入力',
+                    'チェックイン日': room.checkinDate || '',
+                    'チェックアウト日': room.checkoutDate || '',
+                    '宿泊料金': room.stayAmount || 0,
+                    '入金ステータス': getPaymentStatusText(room.paymentStatus),
+                    '入金額': room.paymentAmount || 0,
+                    '入金日': room.paymentDate || '',
+                    '備考': room.notes || ''
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, '入金管理レポート');
+                
+                const filename = `入金管理レポート_${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, filename);
+                
+                hideLoading();
+                showNotification('入金管理レポートをExcel出力しました', 'success');
+            }, 1000);
+        }
+
+        // モーダル関連
+        function addNewProperty() {
+            document.getElementById('newPropertyModal').classList.remove('hidden');
+        }
+
+        function closeNewPropertyModal() {
+            document.getElementById('newPropertyModal').classList.add('hidden');
+            document.getElementById('newPropertyForm').reset();
+        }
+
+        function bulkPaymentUpdate() {
+            document.getElementById('bulkPaymentModal').classList.remove('hidden');
+            document.getElementById('bulkPaymentDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function closeBulkPaymentModal() {
+            document.getElementById('bulkPaymentModal').classList.add('hidden');
+            document.getElementById('bulkPaymentForm').reset();
+        }
+
+        // フォーム処理
+        document.getElementById('newPropertyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const region = document.getElementById('newPropertyRegion').value;
+            const store = document.getElementById('newPropertyStore').value;
+            const propertyName = document.getElementById('newPropertyName').value;
+            const price = parseInt(document.getElementById('newPropertyPrice').value) || 50000;
+            const roomsText = document.getElementById('newPropertyRooms').value;
+            const notes = document.getElementById('newPropertyNotes').value;
+            
+            if (!region || !store || !propertyName || !roomsText) {
+                showNotification('必須項目を入力してください', 'error');
+                return;
+            }
+            
+            // 部屋番号をパース
+            const roomNumbers = roomsText.split(',').map(r => r.trim()).filter(r => r);
+            
+            if (roomNumbers.length === 0) {
+                showNotification('部屋番号を正しく入力してください', 'error');
+                return;
+            }
+            
+            // 新しい部屋を追加
+            roomNumbers.forEach(roomNumber => {
+                const roomId = `${region}_${store}_${propertyName}_${roomNumber}`;
+                allDormitories[roomId] = {
+                    region: region,
+                    store: store,
+                    property: propertyName,
+                    roomNumber: roomNumber,
+                    status: 'vacant',
+                    residentName: '',
+                    checkinDate: '',
+                    checkoutDate: '',
+                    stayAmount: price,
+                    paymentStatus: 'paid',
+                    paymentAmount: 0,
+                    paymentDate: '',
+                    lastUpdated: new Date().toISOString(),
+                    staff: '管理者',
+                    notes: notes
+                };
             });
             
             saveRegionData(region);
-            showNotification('データを更新しました', 'success');
-        }
+            updateOverview();
+            renderPropertyOccupancy();
+            closeNewPropertyModal();
+            showNotification(`${propertyName}を追加しました（${roomNumbers.length}室）`, 'success');
+        });
+
+        document.getElementById('bulkPaymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const region = document.getElementById('bulkPaymentRegion').value;
+            const currentStatus = document.getElementById('bulkPaymentCurrentStatus').value;
+            const newStatus = document.getElementById('bulkPaymentNewStatus').value;
+            const paymentDate = document.getElementById('bulkPaymentDate').value;
+            const notes = document.getElementById('bulkPaymentNotes').value;
+            
+            if (!newStatus) {
+                showNotification('変更後ステータスを選択してください', 'error');
+                return;
+            }
+            
+            let targetRooms = Object.values(allDormitories).filter(room => room.status === 'occupied');
+            
+            if (region) {
+                targetRooms = targetRooms.filter(room => room.region === region);
+            }
+            
+            if (currentStatus) {
+                targetRooms = targetRooms.filter(room => room.paymentStatus === currentStatus);
+            }
+            
+            if (targetRooms.length === 0) {
+                showNotification('対象の部屋が見つかりません', 'warning');
+                return;
+            }
+            
+            if (!confirm(`${targetRooms.length}件の入金情報を一括更新しますか？`)) {
+                return;
+            }
+            
+            showLoading();
+            
+            setTimeout(() => {
+                targetRooms.forEach(room => {
+                    const roomId = `${room.region}_${room.store}_${room.property}_${room.roomNumber}`;
+                    room.paymentStatus = newStatus;
+                    if (paymentDate) room.paymentDate = paymentDate;
+                    if (notes) room.notes = notes;
+                    room.lastUpdated = new Date().toISOString();
+                    
+                    saveRegionData(room.region);
+                });
+                
+                hideLoading();
+                closeBulkPaymentModal();
+                renderPaymentsManagement();
+                showNotification(`${targetRooms.length}件の入金情報を更新しました`, 'success');
+            }, 1000);
+        });
 
         // チャート描画
         function renderCharts() {
             if (!isAuthenticated) return;
             
             renderOccupancyChart();
-            renderTrendChart();
+            renderPaymentChart();
             renderStatusChart();
             renderRevenueChart();
         }
@@ -1474,32 +1822,29 @@
             });
         }
 
-        function renderTrendChart() {
-            const ctx = document.getElementById('trendChart').getContext('2d');
+        function renderPaymentChart() {
+            const ctx = document.getElementById('paymentChart').getContext('2d');
             
-            if (charts.trend) {
-                charts.trend.destroy();
+            if (charts.payment) {
+                charts.payment.destroy();
             }
             
-            const months = ['1月', '2月', '3月', '4月', '5月', '6月'];
-            const trendData = months.map(() => Math.floor(Math.random() * 30) + 60);
+            const occupiedRooms = Object.values(allDormitories).filter(room => room.status === 'occupied');
+            const paymentData = {
+                paid: occupiedRooms.filter(room => room.paymentStatus === 'paid').length,
+                pending: occupiedRooms.filter(room => room.paymentStatus === 'pending').length,
+                overdue: occupiedRooms.filter(room => room.paymentStatus === 'overdue').length
+            };
             
-            charts.trend = new Chart(ctx, {
-                type: 'line',
+            charts.payment = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: months,
+                    labels: ['入金済', '入金待ち', '入金遅延'],
                     datasets: [{
-                        label: '稼働率 (%)',
-                        data: trendData,
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4,
-                        fill: true,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#667eea',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6
+                        data: [paymentData.paid, paymentData.pending, paymentData.overdue],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderRadius: 8,
+                        borderSkipped: false
                     }]
                 },
                 options: {
@@ -1513,7 +1858,6 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 100,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.05)'
                             }
@@ -1540,10 +1884,10 @@
             charts.status = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['🚪 空室', '🏠 入室中', '🧹 清掃中', '🔧 メンテナンス'],
+                    labels: ['空室', '入室中', '清掃中', 'メンテナンス', 'キャンセル'],
                     datasets: [{
-                        data: [allStats.vacant, allStats.occupied, allStats.cleaning, allStats.maintenance],
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+                        data: [allStats.vacant, allStats.occupied, allStats.cleaning, allStats.maintenance, allStats.cancelled],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#6b7280'],
                         borderRadius: 8,
                         borderSkipped: false
                     }]
@@ -1580,22 +1924,32 @@
                 charts.revenue.destroy();
             }
             
-            const revenueData = Object.keys(regions).map(regionId => {
-                const regionDorms = Object.values(allDormitories).filter(dorm => dorm.region === regionId);
-                const occupied = regionDorms.filter(dorm => dorm.status === 'occupied').length;
-                return occupied * regions[regionId].price / 10000; // 万円単位
+            const months = ['1月', '2月', '3月', '4月', '5月', '6月'];
+            const currentRevenue = Object.values(allDormitories)
+                .filter(room => room.status === 'occupied')
+                .reduce((sum, room) => sum + (room.stayAmount || 0), 0);
+            
+            const trendData = months.map((_, index) => {
+                const variance = (Math.random() - 0.5) * 0.2; // ±10%の変動
+                return Math.round(currentRevenue * (1 + variance) / 10000); // 万円単位
             });
             
             charts.revenue = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
-                    labels: Object.values(regions).map(r => r.name),
+                    labels: months,
                     datasets: [{
                         label: '売上予想 (万円)',
-                        data: revenueData,
-                        backgroundColor: Object.values(regions).map(r => r.color),
-                        borderRadius: 8,
-                        borderSkipped: false
+                        data: trendData,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
                     }]
                 },
                 options: {
@@ -1623,106 +1977,124 @@
             });
         }
 
-        // ログ表示
-        function renderLogs() {
-            if (!isAuthenticated) return;
+        // 部屋編集
+        function editRoom(roomId) {
+            const room = allDormitories[roomId];
+            if (!room) return;
             
-            const regionFilter = document.getElementById('logRegionFilter').value;
-            const periodFilter = document.getElementById('logPeriodFilter').value;
+            // 簡易編集ダイアログ
+            const newStatus = prompt(`${room.property} 部屋${room.roomNumber} のステータスを変更:
+現在: ${getStatusText(room.status)}
+
+1: 空室
+2: 入室中  
+3: 清掃中
+4: メンテナンス
+5: キャンセル`);
             
-            let filteredLogs = allLogs;
+            const statusMap = {
+                '1': 'vacant',
+                '2': 'occupied', 
+                '3': 'cleaning',
+                '4': 'maintenance',
+                '5': 'cancelled'
+            };
             
-            if (regionFilter !== 'all') {
-                filteredLogs = filteredLogs.filter(log => log.region === regionFilter);
+            if (statusMap[newStatus]) {
+                room.status = statusMap[newStatus];
+                room.lastUpdated = new Date().toISOString();
+                saveRegionData(room.region);
+                updateOverview();
+                renderPropertyOccupancy();
+                renderPaymentsManagement();
+                showNotification('ステータスを更新しました', 'success');
             }
-            
-            if (periodFilter !== 'all') {
-                const now = new Date();
-                const filterDate = new Date();
-                
-                switch (periodFilter) {
-                    case 'today':
-                        filterDate.setHours(0, 0, 0, 0);
-                        break;
-                    case 'week':
-                        filterDate.setDate(filterDate.getDate() - 7);
-                        break;
-                    case 'month':
-                        filterDate.setMonth(filterDate.getMonth() - 1);
-                        break;
-                }
-                
-                filteredLogs = filteredLogs.filter(log => new Date(log.timestamp) >= filterDate);
-            }
-            
-            const tbody = document.getElementById('logsTableBody');
-            tbody.innerHTML = filteredLogs.slice(0, 100).map(log => `
-                <tr class="border-b hover:bg-gray-50 transition-colors">
-                    <td class="spreadsheet-cell text-sm font-mono">${new Date(log.timestamp).toLocaleString('ja-JP')}</td>
-                    <td class="spreadsheet-cell">
-                        <div class="flex items-center">
-                            <span class="text-lg mr-2">${regions[log.region].icon}</span>
-                            <span class="font-medium">${regions[log.region].name}</span>
-                        </div>
-                    </td>
-                    <td class="spreadsheet-cell font-medium text-purple-700">${log.store || '未設定'}</td>
-                    <td class="spreadsheet-cell font-semibold text-purple-700">寮${log.roomNumber || log.dormNumber}</td>
-                    <td class="spreadsheet-cell">
-                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                            ${getActionText(log.action)}
-                        </span>
-                    </td>
-                    <td class="spreadsheet-cell font-medium">${log.staff}</td>
-                    <td class="spreadsheet-cell text-gray-600">${log.notes || '-'}</td>
-                </tr>
-            `).join('');
         }
 
-        // Excel出力
-        function exportToExcel(type) {
+        function deleteRoom(roomId) {
+            if (!confirm('この部屋のデータを削除しますか？')) {
+                return;
+            }
+            
+            const [region] = roomId.split('_');
+            delete allDormitories[roomId];
+            saveRegionData(region);
+            updateOverview();
+            renderSpreadsheet();
+            showNotification('部屋データを削除しました', 'success');
+        }
+
+        function validateAllData() {
             if (!isAuthenticated) return;
             
             showLoading();
             
             setTimeout(() => {
-                let data, filename;
+                const errors = [];
+                const warnings = [];
                 
-                if (type === 'current') {
-                    data = getFilteredDormitories().map(dorm => ({
-                        '地域': regions[dorm.region].name,
-                        '店舗': dorm.store || '未設定',
-                        '寮番号': `${dorm.property || '未設定'} ${dorm.roomNumber}`,
-                        'ステータス': getStatusText(dorm.status),
-                        '最終更新': new Date(dorm.lastUpdated).toLocaleString('ja-JP'),
-                        '担当者': dorm.staff || '',
-                        '備考': dorm.notes || '',
-                        '入室日': dorm.checkinDate || '',
-                        '予定退室日': dorm.expectedCheckout || '',
-                        '月額料金': dorm.price || '',
-                        '支払状況': getPaymentStatusText(dorm.paymentStatus)
-                    }));
-                    filename = `全地域寮ステータス_${new Date().toISOString().split('T')[0]}.xlsx`;
-                } else {
-                    data = allLogs.map(log => ({
-                        '日時': new Date(log.timestamp).toLocaleString('ja-JP'),
-                        '地域': regions[log.region].name,
-                        '店舗': log.store || '未設定',
-                        '寮番号': `寮${log.roomNumber || log.dormNumber}`,
-                        '操作': getActionText(log.action),
-                        '担当者': log.staff,
-                        '備考': log.notes || ''
-                    }));
-                    filename = `全地域活動ログ_${new Date().toISOString().split('T')[0]}.xlsx`;
-                }
-
-                const ws = XLSX.utils.json_to_sheet(data);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'データ');
-                XLSX.writeFile(wb, filename);
+                Object.values(allDormitories).forEach(room => {
+                    const roomId = `${room.region} ${room.store} - ${room.property} 部屋${room.roomNumber}`;
+                    
+                    if (room.status === 'occupied' && !room.residentName) {
+                        errors.push(`${roomId}: 入室中ですが宿泊者名が未入力です`);
+                    }
+                    
+                    if (room.status === 'occupied' && !room.checkinDate) {
+                        errors.push(`${roomId}: 入室中ですがチェックイン日が未入力です`);
+                    }
+                    
+                    if (room.status === 'occupied' && room.paymentStatus === 'overdue') {
+                        warnings.push(`${roomId}: 入金遅延があります`);
+                    }
+                    
+                    if (room.checkoutDate && new Date(room.checkoutDate) < new Date() && room.status === 'occupied') {
+                        errors.push(`${roomId}: チェックアウト予定日が過ぎています`);
+                    }
+                    
+                    if (!room.stayAmount || room.stayAmount <= 0) {
+                        warnings.push(`${roomId}: 宿泊料金が未設定です`);
+                    }
+                });
                 
                 hideLoading();
-                showNotification('Excelファイルをダウンロードしました', 'success');
-            }, 1000);
+                
+                let message = '';
+                if (errors.length === 0 && warnings.length === 0) {
+                    message = '✅ データに問題はありません';
+                    showNotification(message, 'success');
+                } else {
+                    message = `⚠️ エラー: ${errors.length}件, 警告: ${warnings.length}件を検出しました。`;
+                    showNotification(message, 'warning');
+                    
+                    if (errors.length > 0) {
+                        console.group('🚨 エラー');
+                        errors.forEach(error => console.error(error));
+                        console.groupEnd();
+                    }
+                    
+                    if (warnings.length > 0) {
+                        console.group('⚠️ 警告');
+                        warnings.forEach(warning => console.warn(warning));
+                        console.groupEnd();
+                    }
+                    
+                    console.log('詳細は上記のコンソールログをご確認ください。');
+                }
+            }, 1500);
+        }
+
+        function saveAllChanges() {
+            if (!isAuthenticated) return;
+            
+            showLoading();
+            setTimeout(() => {
+                Object.keys(regions).forEach(regionId => {
+                    saveRegionData(regionId);
+                });
+                hideLoading();
+                showNotification('すべての変更を保存しました', 'success');
+            }, 500);
         }
 
         // ユーティリティ関数
@@ -1731,31 +2103,17 @@
                 vacant: '空室',
                 occupied: '入室中',
                 cleaning: '清掃中',
-                maintenance: 'メンテナンス'
+                maintenance: 'メンテナンス',
+                cancelled: 'キャンセル'
             };
             return statusMap[status] || status;
         }
 
-        function getActionText(action) {
-            const actionMap = {
-                checkin: '入室',
-                checkout: '退室',
-                cleaning: '清掃開始',
-                cleaned: '清掃完了',
-                update: 'データ更新',
-                bulk_update: '一括更新',
-                'payment-confirmed': '入金確認',
-                'payment-overdue': '入金遅延',
-                'payment-status-update': '入金ステータス更新'
-            };
-            return actionMap[action] || action;
-        }
-
         function getPaymentStatusText(status) {
             const statusMap = {
-                paid: '支払済',
-                pending: '未払い',
-                overdue: '遅延'
+                paid: '入金済',
+                pending: '入金待ち',
+                overdue: '入金遅延'
             };
             return statusMap[status] || status;
         }
@@ -1792,214 +2150,10 @@
             }, 5000);
         }
 
-        function saveAllChanges() {
-            if (!isAuthenticated) return;
-            
-            showLoading();
-            setTimeout(() => {
-                Object.keys(regions).forEach(regionId => {
-                    saveRegionData(regionId);
-                });
-                hideLoading();
-                showNotification('すべての変更を保存しました', 'success');
-            }, 500);
-        }
-
-        function quickExport() {
-            exportToExcel('current');
-        }
-
+        // フィルター機能
         function filterSpreadsheet() {
             const regionFilter = document.getElementById('regionFilter').value;
-            currentRegionFilter = regionFilter;
-            renderSpreadsheet();
-        }
-
-        function filterLogs() {
-            renderLogs();
-        }
-
-        // 一括編集関連
-        function bulkEditMode() {
-            if (!isAuthenticated) return;
-            document.getElementById('bulkEditModal').classList.remove('hidden');
-        }
-
-        function closeBulkEditModal() {
-            document.getElementById('bulkEditModal').classList.add('hidden');
-            document.getElementById('bulkRegion').value = '';
-            document.getElementById('bulkStatus').value = '';
-            document.getElementById('bulkStaff').value = '';
-            document.getElementById('bulkNotes').value = '';
-            document.getElementById('bulkSelectDorms').innerHTML = '';
-        }
-
-        document.getElementById('bulkRegion').addEventListener('change', function() {
-            const regionId = this.value;
-            const dormsContainer = document.getElementById('bulkSelectDorms');
-            
-            if (!regionId) {
-                dormsContainer.innerHTML = '';
-                return;
-            }
-            
-            const regionDorms = Object.values(allDormitories).filter(dorm => dorm.region === regionId);
-            
-            dormsContainer.innerHTML = regionDorms.map(dorm => `
-                <label class="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                    <input type="checkbox" value="${regionId}_${dorm.number || dorm.roomNumber}" class="bulk-dorm-checkbox">
-                    <span class="text-sm font-medium">寮${dorm.roomNumber}</span>
-                </label>
-            `).join('');
-        });
-
-        function executeBulkEdit() {
-            if (!isAuthenticated) return;
-            
-            const selectedDorms = Array.from(document.querySelectorAll('.bulk-dorm-checkbox:checked')).map(cb => cb.value);
-            const status = document.getElementById('bulkStatus').value;
-            const staff = document.getElementById('bulkStaff').value;
-            const notes = document.getElementById('bulkNotes').value;
-            
-            if (selectedDorms.length === 0) {
-                showNotification('寮を選択してください', 'error');
-                return;
-            }
-            
-            if (!status && !staff && !notes) {
-                showNotification('変更する項目を入力してください', 'error');
-                return;
-            }
-            
-            showLoading();
-            
-            setTimeout(() => {
-                selectedDorms.forEach(dormKey => {
-                    const dorm = allDormitories[dormKey];
-                    const [region] = dormKey.split('_');
-                    
-                    if (status) dorm.status = status;
-                    if (staff) dorm.staff = staff;
-                    if (notes) dorm.notes = notes;
-                    dorm.lastUpdated = new Date().toISOString();
-                    
-                    allLogs.unshift({
-                        id: allLogs.length + 1,
-                        roomNumber: dorm.roomNumber,
-                        action: 'bulk_update',
-                        staff: '管理者',
-                        timestamp: new Date().toISOString(),
-                        notes: `一括編集: ${notes}`,
-                        region: region,
-                        store: dorm.store
-                    });
-                    
-                    saveRegionData(region);
-                });
-                
-                hideLoading();
-                closeBulkEditModal();
-                renderSpreadsheet();
-                updateOverview();
-                showNotification(`${selectedDorms.length}件の寮を一括更新しました`, 'success');
-            }, 1000);
-        }
-
-        function deleteDormData(dormKey) {
-            if (!isAuthenticated) return;
-            
-            if (!confirm('本当にこの寮のデータを削除しますか？')) {
-                return;
-            }
-            
-            const [region] = dormKey.split('_');
-            const dorm = allDormitories[dormKey];
-            
-            allLogs.unshift({
-                id: allLogs.length + 1,
-                roomNumber: dorm.roomNumber,
-                action: 'delete',
-                staff: '管理者',
-                timestamp: new Date().toISOString(),
-                notes: 'データ削除',
-                region: region,
-                store: dorm.store
-            });
-            
-            delete allDormitories[dormKey];
-            saveRegionData(region);
-            renderSpreadsheet();
-            updateOverview();
-            showNotification('データを削除しました', 'success');
-        }
-
-        function validateAllData() {
-            if (!isAuthenticated) return;
-            
-            showLoading();
-            
-            setTimeout(() => {
-                const errors = [];
-                const warnings = [];
-                
-                Object.values(allDormitories).forEach(dorm => {
-                    const dormId = `${regions[dorm.region].name} ${dorm.store} - 寮${dorm.roomNumber}`;
-                    
-                    if (dorm.status === 'occupied' && !dorm.checkinDate) {
-                        errors.push(`${dormId}: 入室中ですが入室日が設定されていません`);
-                    }
-                    
-                    if (dorm.status === 'occupied' && dorm.paymentStatus === 'overdue') {
-                        warnings.push(`${dormId}: 入室中ですが支払いが遅延しています`);
-                    }
-                    
-                    if (dorm.expectedCheckout && new Date(dorm.expectedCheckout) < new Date() && dorm.status === 'occupied') {
-                        errors.push(`${dormId}: 退室予定日が過ぎています`);
-                    }
-                    
-                    if (!dorm.price || dorm.price <= 0) {
-                        errors.push(`${dormId}: 料金が設定されていません`);
-                    }
-                    
-                    if (!dorm.store || dorm.store === '未設定') {
-                        warnings.push(`${dormId}: 店舗が設定されていません`);
-                    }
-                });
-                
-                hideLoading();
-                
-                let message = '';
-                if (errors.length === 0 && warnings.length === 0) {
-                    message = '✅ データに問題はありません';
-                    showNotification(message, 'success');
-                } else {
-                    message = `⚠️ エラー: ${errors.length}件, 警告: ${warnings.length}件を検出しました。`;
-                    showNotification(message, 'warning');
-                    
-                    if (errors.length > 0) {
-                        console.group('🚨 エラー');
-                        errors.forEach(error => console.error(error));
-                        console.groupEnd();
-                    }
-                    
-                    if (warnings.length > 0) {
-                        console.group('⚠️ 警告');
-                        warnings.forEach(warning => console.warn(warning));
-                        console.groupEnd();
-                    }
-                    
-                    console.log('詳細は上記のコンソールログをご確認ください。');
-                }
-            }, 1500);
-        }
-
-        // 認証チェック機能
-        function requireAuth() {
-            if (!isAuthenticated) {
-                showNotification('この機能を使用するにはログインが必要です', 'error');
-                return false;
-            }
-            return true;
+            renderSpreadsheet(regionFilter);
         }
 
         // 初期化
@@ -2015,7 +2169,10 @@
                 showSection('overview');
             }
             
-            console.log('セキュア管理者システムが正常に読み込まれました');
+            console.log('寮管理システム v2.0 管理者画面が正常に読み込まれました');
+            
+            // メンテナンスの定義を表示
+            showNotification('📋 メンテナンスステータスについて: 設備故障・修理・改装など部屋が使用できない状態を示します', 'info');
         });
 
         // セッション管理
@@ -2040,7 +2197,7 @@
             // Ctrl+E でExcel出力
             if (e.ctrlKey && e.key === 'e') {
                 e.preventDefault();
-                quickExport();
+                exportFullData();
             }
             
             // ESCでモーダルを閉じる
