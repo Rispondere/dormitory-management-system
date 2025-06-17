@@ -1,0 +1,16 @@
+{
+  "name": "dormitory-management-system",
+  "version": "1.0.0",
+  "description": "- **CDN使用**: 外部ライブラリの高速読み込み\r - **レイジーローディング**: 必要時のみデータ読み込み\r - **メモリ管理**: 効率的なデータ構造とガベージコレクション\r - **圧縮**: Gzip圧縮対応（GitHub Pages自動）\r - **キャッシュ活用**: ブラウザキャッシュでリピート訪問高速化",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "htmlhint": "^0.16.0"
+  }
+}
