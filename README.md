@@ -701,6 +701,11 @@ function dumpAllData() {
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+
+## Development
+
+GitHub Actions automatically lint the HTML pages using [HTMLHint](https://github.com/htmlhint/HTMLHint). The workflow runs `npx htmlhint admin.html index.html` on each push.
+
 ## 📝 ライセンス
 
 MIT License - 詳細は [LICENSE](LICENSE) ファイルをご確認ください。
